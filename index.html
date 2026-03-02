@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Number Selector</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+[data-theme="dark"]{--bg:#0a0a0f;--surface:#12121a;--card:#1a1a26;--border:#2a2a3a;--text:#e8e8f0;--muted:#6a6a8a;--muted2:#4a4a6a;--shadow:rgba(0,0,0,.5);--grid:rgba(240,192,64,.03);--inp:#12121a;}
+[data-theme="light"]{--bg:#f0f0f6;--surface:#fff;--card:#fff;--border:#dedee8;--text:#1a1a2e;--muted:#7878a0;--muted2:#c0c0d8;--shadow:rgba(0,0,0,.09);--grid:rgba(80,80,180,.04);--inp:#f8f8fc;}
+:root{--ac:#e8b830;--a2:#28aee4;--a3:#e83070;--a4:#40d090;--gold:#e8b830;--silver:#9898b8;--bronze:#c87838;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.wrap{max-width:1200px;margin:0 auto;padding:26px 18px 60px;position:relative;z-index:1;}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;animation:fadeDown .6s ease both;}
+.brand-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,3.6vw,2.3rem);letter-spacing:4px;background:linear-gradient(135deg,var(--ac),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.brand-sub{font-size:.68rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
+.theme-btn{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:40px;padding:6px 13px;cursor:pointer;transition:all .25s;user-select:none;box-shadow:0 2px 8px var(--shadow);}
+.theme-btn:hover{border-color:var(--ac);}
+.trk{width:34px;height:18px;border-radius:18px;background:var(--border);position:relative;transition:background .3s;}
+[data-theme="dark"] .trk{background:var(--ac);}
+.thm{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .3s;box-shadow:0 1px 4px rgba(0,0,0,.3);}
+[data-theme="dark"] .thm{transform:translateX(16px);}
+.t-icon{font-size:.9rem;}
+.t-lbl{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);letter-spacing:1px;}
+
+/* PANELS */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 20px;margin-bottom:16px;box-shadow:0 2px 16px var(--shadow);transition:background .3s,border-color .3s;}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:3px;color:var(--a2);margin-bottom:11px;}
+
+/* ── DOB PANEL ───────────────────────────────── */
+.dob-panel{border-color:rgba(64,208,144,.3);background:linear-gradient(135deg,var(--card) 0%,rgba(64,208,144,.04) 100%);}
+[data-theme="light"] .dob-panel{background:linear-gradient(135deg,#fff 0%,rgba(64,208,144,.06) 100%);}
+.dob-sec-title{color:var(--a4);}
+.dob-row{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;}
+.dob-inp-wrap{display:flex;flex-direction:column;gap:4px;}
+.dob-lbl{font-size:.65rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.dob-inp{background:var(--inp);border:1px solid var(--border);color:var(--text);padding:8px 13px;border-radius:10px;font-family:'DM Mono',monospace;font-size:.9rem;outline:none;transition:border-color .2s;width:130px;}
+.dob-inp:focus{border-color:var(--a4);}
+.dob-calc-btn{background:var(--a4);border:none;color:#000;padding:8px 20px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:.92rem;letter-spacing:2px;cursor:pointer;transition:opacity .2s;align-self:flex-end;white-space:nowrap;}
+.dob-calc-btn:hover{opacity:.85;}
+.dob-clear-btn{background:var(--inp);border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:10px;font-family:'DM Mono',monospace;font-size:.75rem;cursor:pointer;transition:all .2s;align-self:flex-end;white-space:nowrap;}
+.dob-clear-btn:hover{border-color:var(--a3);color:var(--a3);}
+
+/* DOB RESULT CARDS */
+.dob-result{margin-top:16px;display:none;}
+.dob-result.show{display:block;}
+.dob-profile{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px;}
+.dob-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;transition:border-color .2s;}
+.dob-card:hover{border-color:var(--a4);}
+.dob-card-icon{font-size:1.4rem;margin-bottom:4px;}
+.dob-card-lbl{font-size:.6rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:3px;}
+.dob-card-val{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;color:var(--a4);line-height:1;}
+.dob-card-sub{font-size:.7rem;color:var(--text);margin-top:3px;line-height:1.3;}
+
+/* compat legend */
+.compat-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+.compat-lbl{font-size:.65rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-right:4px;}
+.compat-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.68rem;}
+.cc-best{background:rgba(64,208,144,.15);color:#40d090;border:1px solid rgba(64,208,144,.35);}
+.cc-good{background:rgba(40,174,228,.15);color:#28aee4;border:1px solid rgba(40,174,228,.35);}
+.cc-neutral{background:rgba(160,160,192,.1);color:var(--muted);border:1px solid var(--border);}
+.cc-avoid{background:rgba(232,48,112,.12);color:#e83070;border:1px solid rgba(232,48,112,.3);}
+.cdot{width:6px;height:6px;border-radius:50%;}
+
+/* DOB TOP MATCHES */
+.dob-top-title{font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:3px;color:var(--a4);margin-bottom:10px;}
+.dob-matches{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.dmcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .22s;position:relative;overflow:hidden;}
+.dmcard:hover{transform:translateY(-2px);box-shadow:0 6px 22px var(--shadow);}
+.dmcard.dm-best{border-color:rgba(64,208,144,.5);}
+.dmcard.dm-best:hover{box-shadow:0 6px 22px rgba(64,208,144,.2);}
+.dmcard.dm-good{border-color:rgba(40,174,228,.4);}
+.dmcard.dm-good:hover{box-shadow:0 6px 22px rgba(40,174,228,.15);}
+.dmcard-rank{font-size:.62rem;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:3px;}
+.dmcard-num{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;color:var(--text);line-height:1;}
+.dmcard-compat{font-size:.65rem;font-family:'DM Mono',monospace;margin:4px 0;display:flex;align-items:center;gap:5px;}
+.dmcard-why{font-size:.68rem;color:var(--muted);line-height:1.35;margin-top:4px;}
+.dmcard-tags{margin-top:6px;}
+.dmcard-score{position:absolute;top:10px;right:12px;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--a4);}
+
+/* RANGE */
+.range-row{display:flex;align-items:flex-end;gap:11px;flex-wrap:wrap;}
+.rg{display:flex;flex-direction:column;gap:4px;}
+.rl{font-size:.64rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.ri{background:var(--inp);border:1px solid var(--border);color:var(--text);padding:7px 11px;border-radius:10px;font-family:'DM Mono',monospace;font-size:.86rem;width:94px;outline:none;transition:border-color .2s;}
+.ri:focus{border-color:var(--ac);}
+.prow{display:flex;gap:6px;flex-wrap:wrap;align-self:flex-end;}
+.pbtn{background:var(--inp);border:1px solid var(--border);color:var(--muted);padding:5px 9px;border-radius:20px;font-size:.66rem;font-family:'DM Mono',monospace;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.pbtn:hover{border-color:var(--a2);color:var(--a2);}
+.abtn{background:var(--ac);border:none;color:#000;padding:7px 17px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:2px;cursor:pointer;transition:opacity .2s;white-space:nowrap;align-self:flex-end;}
+.abtn:hover{opacity:.85;}
+.rbadge{font-family:'DM Mono',monospace;font-size:.76rem;color:var(--ac);background:var(--inp);padding:5px 11px;border-radius:8px;border:1px solid rgba(232,184,48,.3);align-self:flex-end;white-space:nowrap;}
+
+/* COMMA LIST */
+.cl-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+.cl-ta{background:var(--inp);border:1px solid var(--border);color:var(--text);padding:9px 13px;border-radius:12px;font-family:'DM Mono',monospace;font-size:.8rem;outline:none;transition:border-color .2s;resize:vertical;min-height:52px;flex:1;min-width:200px;line-height:1.5;}
+.cl-ta:focus{border-color:var(--ac);}
+.cl-ta::placeholder{color:var(--muted);}
+.cl-btns{display:flex;gap:8px;align-self:flex-end;flex-wrap:wrap;}
+.cl-app{background:var(--ac);border:none;color:#000;padding:7px 16px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:2px;cursor:pointer;transition:opacity .2s;}
+.cl-app:hover{opacity:.85;}
+.cl-clr{background:var(--inp);border:1px solid var(--border);color:var(--muted);padding:7px 13px;border-radius:10px;font-family:'DM Mono',monospace;font-size:.72rem;cursor:pointer;transition:all .2s;}
+.cl-clr:hover{border-color:var(--a3);color:var(--a3);}
+.cl-prev{margin-top:8px;display:flex;gap:5px;flex-wrap:wrap;max-height:76px;overflow-y:auto;}
+.cl-chip{background:rgba(40,174,228,.12);border:1px solid rgba(40,174,228,.28);color:var(--a2);padding:2px 8px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.67rem;display:flex;align-items:center;gap:4px;}
+.cl-chip button{background:none;border:none;color:var(--a2);cursor:pointer;font-size:.72rem;opacity:.7;}
+.cl-chip button:hover{opacity:1;}
+.cl-hint{font-size:.66rem;color:var(--muted);margin-top:5px;font-family:'DM Mono',monospace;}
+
+/* FILTERS */
+.fhdr{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+.cat-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.fbtn{background:var(--inp);border:1px solid var(--border);color:var(--muted);padding:4px 11px;border-radius:30px;font-family:'DM Mono',monospace;font-size:.67rem;cursor:pointer;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:5px;}
+.fbtn.active{color:#000!important;font-weight:600;}
+.f-all.active{background:#e8b830;border-color:#e8b830;}
+.f-lucky.active{background:#e8b830;border-color:#e8b830;}
+.f-pattern.active{background:#28aee4;border-color:#28aee4;}
+.f-numerology.active{background:#e83070;border-color:#e83070;color:#fff!important;}
+.f-sequence.active{background:#30e898;border-color:#30e898;}
+.f-mirror.active{background:#b060f8;border-color:#b060f8;color:#fff!important;}
+.f-palindrome.active{background:#f06020;border-color:#f06020;color:#fff!important;}
+.f-repeating.active{background:#f03838;border-color:#f03838;color:#fff!important;}
+.f-prime.active{background:#60a8f0;border-color:#60a8f0;}
+.f-fibonacci.active{background:#40c840;border-color:#40c840;}
+.f-angel.active{background:#d060d0;border-color:#d060d0;color:#fff!important;}
+.f-powernum.active{background:#f09020;border-color:#f09020;}
+.f-zodiac.active{background:#20e8c8;border-color:#20e8c8;}
+.f-easy.active{background:#a8d820;border-color:#a8d820;}
+.f-dob.active{background:#40d090;border-color:#40d090;}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.dot-lucky{background:#e8b830}.dot-pattern{background:#28aee4}.dot-numerology{background:#e83070}
+.dot-sequence{background:#30e898}.dot-mirror{background:#b060f8}.dot-palindrome{background:#f06020}
+.dot-repeating{background:#f03838}.dot-prime{background:#60a8f0}.dot-fibonacci{background:#40c840}
+.dot-angel{background:#d060d0}.dot-powernum{background:#f09020}.dot-zodiac{background:#20e8c8}
+.dot-easy{background:#a8d820}.dot-dob{background:#40d090;}
+.srch{position:relative;margin-left:auto;}
+.srch input{background:var(--inp);border:1px solid var(--border);color:var(--text);padding:5px 12px 5px 29px;border-radius:30px;font-family:'DM Mono',monospace;font-size:.73rem;outline:none;transition:border-color .2s;width:148px;}
+.srch input:focus{border-color:var(--ac);}
+.srch input::placeholder{color:var(--muted);}
+.srch::before{content:'⌕';position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.92rem;pointer-events:none;}
+
+/* INFO BTN */
+.info-btn{display:flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;background:var(--a2);color:#fff;font-size:.65rem;font-weight:700;cursor:pointer;border:none;flex-shrink:0;transition:transform .2s,box-shadow .2s;}
+.info-btn:hover{transform:scale(1.12);box-shadow:0 0 10px rgba(40,174,228,.4);}
+
+/* GUIDE MODAL */
+.guide-ov{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;}
+.guide-ov.open{opacity:1;pointer-events:all;}
+.guide-modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:26px 24px;max-width:640px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.6);transform:translateY(18px) scale(.97);transition:transform .28s ease;max-height:88vh;overflow-y:auto;position:relative;}
+.guide-ov.open .guide-modal{transform:translateY(0) scale(1);}
+.guide-title{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;letter-spacing:4px;color:var(--a2);margin-bottom:16px;}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:9px;}
+.gi{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:9px;background:var(--surface);border:1px solid var(--border);}
+.gi:hover{border-color:var(--a2);}
+.gdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.gtxt{font-size:.71rem;color:var(--muted);line-height:1.35;}
+.gtxt b{color:var(--text);display:block;font-size:.74rem;margin-bottom:1px;}
+.g-close{position:absolute;top:13px;right:14px;background:var(--inp);border:1px solid var(--border);color:var(--muted);width:27px;height:27px;border-radius:8px;cursor:pointer;font-size:.82rem;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.g-close:hover{background:var(--a3);border-color:var(--a3);color:#fff;}
+
+/* STARS */
+.stars{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:20px;animation:fadeUp .7s ease .2s both;}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .25s;box-shadow:0 2px 12px var(--shadow);}
+.scard:hover{transform:translateY(-2px);}
+.scard.rk1{border-color:var(--gold);}.scard.rk1:hover{box-shadow:0 8px 24px rgba(232,184,48,.22);}
+.scard.rk2{border-color:var(--silver);}.scard.rk2:hover{box-shadow:0 8px 24px rgba(152,152,184,.18);}
+.scard.rk3{border-color:var(--bronze);}.scard.rk3:hover{box-shadow:0 8px 24px rgba(200,120,56,.18);}
+.scard.rk4,.scard.rk5,.scard.rk6{border-color:var(--border);}.scard.rk4:hover,.scard.rk5:hover,.scard.rk6:hover{box-shadow:0 8px 24px rgba(100,100,160,.14);}
+.sbadge{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1;min-width:26px;}
+.rk1 .sbadge{color:var(--gold)}.rk2 .sbadge{color:var(--silver)}.rk3 .sbadge{color:var(--bronze)}
+.rk4 .sbadge,.rk5 .sbadge,.rk6 .sbadge{color:var(--muted);font-size:1rem;line-height:2;}
+.sinfo{flex:1;min-width:0;}
+.snum{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;line-height:1;margin-bottom:2px;}
+.sreason{font-size:.67rem;color:var(--muted);line-height:1.3;}
+.stags{margin-top:3px;}
+.ssc{flex-shrink:0;text-align:right;}
+.scv{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;display:block;}
+.rk1 .scv{color:var(--gold)}.rk2 .scv{color:var(--silver)}.rk3 .scv{color:var(--bronze)}
+.rk4 .scv,.rk5 .scv,.rk6 .scv{color:var(--a2);}
+.scl{font-size:.57rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+
+/* TABLE */
+.tsec{animation:fadeUp .7s ease .28s both;}
+.thdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:7px;}
+.ttitle{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:var(--a2);}
+.cbadge{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);background:var(--card);padding:3px 10px;border-radius:20px;border:1px solid var(--border);}
+.twrap{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden;box-shadow:0 4px 28px var(--shadow);transition:background .3s,border-color .3s;}
+.tscroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--surface);border-bottom:1px solid var(--border);}
+th{font-family:'DM Mono',monospace;font-size:.63rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:11px 14px;text-align:left;cursor:pointer;white-space:nowrap;transition:color .2s;user-select:none;}
+th:hover{color:var(--ac)} th.sorted{color:var(--ac)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer;}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(232,184,48,.05);}
+[data-theme="light"] tbody tr:hover{background:rgba(232,184,48,.08);}
+tbody tr.hl{border-left:3px solid var(--ac);}
+[data-theme="dark"] tbody tr.hl{background:rgba(232,184,48,.06);}
+[data-theme="light"] tbody tr.hl{background:rgba(232,184,48,.07);}
+tbody tr.dob-hl{border-left:3px solid var(--a4);}
+[data-theme="dark"] tbody tr.dob-hl{background:rgba(64,208,144,.06);}
+[data-theme="light"] tbody tr.dob-hl{background:rgba(64,208,144,.07);}
+td{padding:9px 14px;font-size:.79rem;vertical-align:middle;}
+.tnum{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:2px;}
+.tplate{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);}
+.sbar{display:flex;align-items:center;gap:6px;}
+.strk{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;min-width:40px;}
+.sfil{height:100%;border-radius:2px;}
+.sfh{background:linear-gradient(90deg,var(--a2),var(--gold))} .sfm{background:var(--a2)} .sfl{background:var(--muted2)}
+.sfdob{background:linear-gradient(90deg,var(--a4),var(--a2))}
+.sn{font-family:'DM Mono',monospace;font-size:.68rem;min-width:20px;text-align:right;}
+/* COMPAT BADGE in table */
+.compat-badge{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:20px;font-size:.6rem;font-family:'DM Mono',monospace;white-space:nowrap;}
+.cb-best{background:rgba(64,208,144,.15);color:#40d090;border:1px solid rgba(64,208,144,.35);}
+.cb-good{background:rgba(40,174,228,.15);color:#28aee4;border:1px solid rgba(40,174,228,.3);}
+.cb-neutral{background:rgba(160,160,192,.1);color:var(--muted);border:1px solid var(--border);}
+.cb-avoid{background:rgba(232,48,112,.12);color:#e83070;border:1px solid rgba(232,48,112,.28);}
+/* TAGS */
+.tag{display:inline-block;padding:1px 6px;border-radius:20px;font-size:.6rem;font-family:'DM Mono',monospace;margin:1px;white-space:nowrap;}
+[data-theme="dark"] .tag-lucky{background:rgba(232,184,48,.18);color:#f0c040;border:1px solid rgba(232,184,48,.35)}
+[data-theme="dark"] .tag-pattern{background:rgba(40,174,228,.18);color:#40c0f0;border:1px solid rgba(40,174,228,.35)}
+[data-theme="dark"] .tag-numerology{background:rgba(232,48,112,.18);color:#f04880;border:1px solid rgba(232,48,112,.35)}
+[data-theme="dark"] .tag-sequence{background:rgba(48,232,152,.18);color:#38e898;border:1px solid rgba(48,232,152,.35)}
+[data-theme="dark"] .tag-mirror{background:rgba(176,96,248,.18);color:#c080ff;border:1px solid rgba(176,96,248,.35)}
+[data-theme="dark"] .tag-palindrome{background:rgba(240,96,32,.18);color:#f08040;border:1px solid rgba(240,96,32,.35)}
+[data-theme="dark"] .tag-repeating{background:rgba(240,56,56,.18);color:#ff6060;border:1px solid rgba(240,56,56,.35)}
+[data-theme="dark"] .tag-prime{background:rgba(96,168,240,.18);color:#80c0ff;border:1px solid rgba(96,168,240,.35)}
+[data-theme="dark"] .tag-fibonacci{background:rgba(64,200,64,.18);color:#60d060;border:1px solid rgba(64,200,64,.35)}
+[data-theme="dark"] .tag-angel{background:rgba(208,96,208,.18);color:#e080e0;border:1px solid rgba(208,96,208,.35)}
+[data-theme="dark"] .tag-powernum{background:rgba(240,144,32,.18);color:#f8a830;border:1px solid rgba(240,144,32,.35)}
+[data-theme="dark"] .tag-zodiac{background:rgba(32,232,200,.18);color:#30ead0;border:1px solid rgba(32,232,200,.35)}
+[data-theme="dark"] .tag-easy{background:rgba(168,216,32,.18);color:#90c020;border:1px solid rgba(168,216,32,.35)}
+[data-theme="light"] .tag-lucky{background:#fff8e0;color:#b08000;border:1px solid #f0d060}
+[data-theme="light"] .tag-pattern{background:#e0f4ff;color:#0080c0;border:1px solid #a0d8f8}
+[data-theme="light"] .tag-numerology{background:#ffe0ec;color:#c00050;border:1px solid #f8a0c0}
+[data-theme="light"] .tag-sequence{background:#e0fff4;color:#007840;border:1px solid #80e8c0}
+[data-theme="light"] .tag-mirror{background:#f4e8ff;color:#6020a0;border:1px solid #c898f8}
+[data-theme="light"] .tag-palindrome{background:#fff0e0;color:#a04000;border:1px solid #f8b880}
+[data-theme="light"] .tag-repeating{background:#ffe8e8;color:#a00020;border:1px solid #f8a0a0}
+[data-theme="light"] .tag-prime{background:#e8f4ff;color:#0040a0;border:1px solid #90c0f8}
+[data-theme="light"] .tag-fibonacci{background:#e8ffe8;color:#006000;border:1px solid #80d880}
+[data-theme="light"] .tag-angel{background:#fce8fc;color:#800080;border:1px solid #e090e0}
+[data-theme="light"] .tag-powernum{background:#fff4e0;color:#904000;border:1px solid #f8c878}
+[data-theme="light"] .tag-zodiac{background:#e0fff8;color:#006860;border:1px solid #80e0d0}
+[data-theme="light"] .tag-easy{background:#f4ffe0;color:#507000;border:1px solid #b8e860}
+.rtext{font-size:.72rem;color:var(--muted);max-width:200px;line-height:1.35;}
+.nores{text-align:center;padding:36px;color:var(--muted);font-size:.84rem;}
+
+/* PAGINATION */
+.pag{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:14px;flex-wrap:wrap;}
+.pgb{background:var(--card);border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:7px;cursor:pointer;font-family:'DM Mono',monospace;font-size:.72rem;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.pgb:hover,.pgb.active{background:var(--ac);border-color:var(--ac);color:#000;font-weight:600;}
+.pgb:disabled{opacity:.3;cursor:not-allowed;}
+
+/* DETAIL MODAL */
+.det-ov{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .28s;}
+.det-ov.open{opacity:1;pointer-events:all;}
+.det-modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px 18px;max-width:460px;width:100%;transform:translateY(18px) scale(.97);transition:transform .28s ease;box-shadow:0 20px 60px rgba(0,0,0,.55);max-height:90vh;overflow-y:auto;}
+.det-ov.open .det-modal{transform:translateY(0) scale(1);}
+.dplate{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:5px;color:var(--ac);text-align:center;margin-bottom:2px;}
+.dfull{text-align:center;font-family:'DM Mono',monospace;font-size:.73rem;color:var(--muted);margin-bottom:14px;}
+.dgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px;}
+.dbox{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:9px;text-align:center;}
+.dbl{font-size:.57rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+.dbv{font-family:'Bebas Neue',sans-serif;font-size:1.28rem;color:var(--ac);}
+.dob-compat-section{background:var(--surface);border-radius:9px;padding:10px 12px;margin-bottom:11px;border:1px solid rgba(64,208,144,.25);}
+.doc-title{font-size:.6rem;color:var(--a4);letter-spacing:1.5px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;}
+.doc-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-size:.72rem;}
+.doc-row:last-child{border-bottom:none;}
+.doc-k{color:var(--muted)}.doc-v{color:var(--text);font-family:'DM Mono',monospace;font-weight:500;}
+.dbdown{background:var(--surface);border-radius:9px;padding:10px;margin-bottom:11px;}
+.dbt{font-size:.6rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;font-family:'DM Mono',monospace;}
+.dbr{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-size:.72rem;}
+.dbr:last-child{border-bottom:none}.dbk{color:var(--muted)}.dbv2{color:var(--text);font-family:'DM Mono',monospace;}
+.dtags{margin-bottom:10px;}
+.dreason{font-size:.75rem;color:var(--text);line-height:1.55;opacity:.88;background:var(--surface);border-radius:9px;padding:10px;margin-bottom:12px;}
+.dclose{width:100%;background:var(--ac);border:none;color:#000;padding:9px;border-radius:9px;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:2px;cursor:pointer;transition:opacity .2s;}
+.dclose:hover{opacity:.85;}
+
+/* ENDS-IN FILTER */
+.ends-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center;}
+.ends-lbl{font-size:.63rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+.ebtn{background:var(--inp);border:1px solid var(--border);color:var(--muted);padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.68rem;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.ebtn:hover{border-color:var(--ac);color:var(--ac);}
+.ebtn.active{background:var(--ac);border-color:var(--ac);color:#000;font-weight:600;}
+
+/* SHORTLIST */
+.shortlist-bar{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:16px;box-shadow:0 2px 12px var(--shadow);display:none;animation:fadeUp .4s ease both;}
+.shortlist-bar.has-items{display:block;}
+.sl-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.sl-title{font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:3px;color:var(--ac);}
+.sl-actions{display:flex;gap:7px;}
+.sl-compare-btn{background:var(--ac);border:none;color:#000;padding:5px 14px;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:2px;cursor:pointer;transition:opacity .2s;}
+.sl-compare-btn:hover{opacity:.85;}
+.sl-clear-btn{background:var(--inp);border:1px solid var(--border);color:var(--muted);padding:5px 11px;border-radius:8px;font-family:'DM Mono',monospace;font-size:.68rem;cursor:pointer;transition:all .2s;}
+.sl-clear-btn:hover{border-color:var(--a3);color:var(--a3);}
+.sl-chips{display:flex;gap:7px;flex-wrap:wrap;}
+.sl-chip{background:rgba(232,184,48,.12);border:1px solid rgba(232,184,48,.3);color:var(--ac);padding:4px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.72rem;display:flex;align-items:center;gap:5px;cursor:pointer;transition:all .2s;}
+.sl-chip:hover{border-color:var(--a3);color:var(--a3);}
+.sl-hint{font-size:.63rem;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px;}
+
+/* COMPARE MODAL */
+.cmp-ov{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);z-index:450;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;}
+.cmp-ov.open{opacity:1;pointer-events:all;}
+.cmp-modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px 20px;max-width:900px;width:100%;transform:translateY(16px) scale(.97);transition:transform .28s ease;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:90vh;overflow-y:auto;}
+.cmp-ov.open .cmp-modal{transform:translateY(0) scale(1);}
+.cmp-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.cmp-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--ac);}
+.cmp-close{background:var(--inp);border:1px solid var(--border);color:var(--muted);width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:.82rem;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.cmp-close:hover{background:var(--a3);border-color:var(--a3);color:#fff;}
+.cmp-grid{display:grid;gap:12px;}
+.cmp-row-hdr{display:grid;gap:10px;margin-bottom:4px;}
+.cmp-col-head{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;}
+.cmp-col-num{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:3px;color:var(--ac);line-height:1;}
+.cmp-col-score{font-size:.65rem;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;}
+.cmp-section{margin-bottom:10px;}
+.cmp-sec-lbl{font-size:.62rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-family:'DM Mono',monospace;padding:5px 0;border-bottom:1px solid var(--border);margin-bottom:6px;}
+.cmp-cells{display:grid;gap:10px;}
+.cmp-cell{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:.74rem;text-align:center;font-family:'DM Mono',monospace;}
+.cmp-cell.best{border-color:rgba(64,208,144,.5);background:rgba(64,208,144,.07);color:#40d090;font-weight:600;}
+.cmp-cell.worst{border-color:rgba(232,48,112,.3);color:#e83070;}
+
+.lding{position:fixed;inset:0;background:var(--bg);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity .4s;}
+.lding.hidden{opacity:0;pointer-events:none;}
+.spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite;}
+.ltxt{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted);letter-spacing:2px;}
+
+/* FLOATING COMPARE BUTTON */
+.float-compare{position:fixed;bottom:24px;right:20px;z-index:300;display:none;animation:popIn .3s cubic-bezier(.34,1.56,.64,1) both;}
+.float-compare.show{display:flex;}
+@keyframes popIn{from{opacity:0;transform:scale(.7) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.float-compare-btn{display:flex;align-items:center;gap:9px;background:var(--ac);color:#000;border:none;border-radius:50px;padding:13px 22px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;cursor:pointer;box-shadow:0 6px 24px rgba(232,184,48,.45);transition:all .2s;}
+.float-compare-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(232,184,48,.55);}
+.float-compare-badge{background:#000;color:var(--ac);border-radius:50%;width:22px;height:22px;font-size:.75rem;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-weight:700;}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── MOBILE ─────────────────────────────────── */
+@media(max-width:640px){
+  .wrap{padding:16px 12px 100px;}
+
+  /* Topbar */
+  .topbar{flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+  .brand-title{font-size:clamp(1.2rem,6vw,1.8rem);}
+
+  /* Panels */
+  .panel{padding:14px 14px;}
+
+  /* DOB panel */
+  .dob-row{flex-direction:column;align-items:stretch;gap:10px;}
+  .dob-inp{width:100%;}
+  .dob-calc-btn,.dob-clear-btn{width:100%;text-align:center;padding:10px;}
+  .dob-profile{grid-template-columns:repeat(2,1fr);}
+  .compat-row{gap:5px;}
+
+  /* Range panel */
+  .range-row{flex-direction:column;align-items:stretch;gap:10px;}
+  .ri{width:100%;}
+  .rg{width:100%;}
+  .prow{gap:5px;}
+  .pbtn{flex:1;text-align:center;padding:6px 4px;font-size:.6rem;}
+  .rbadge{text-align:center;}
+  .abtn{width:100%;text-align:center;padding:10px;}
+
+  /* List panel */
+  .cl-row{flex-direction:column;}
+  .cl-btns{flex-direction:row;}
+  .cl-app,.cl-clr{flex:1;text-align:center;}
+
+  /* Filter panel */
+  .fhdr{margin-bottom:8px;}
+  .cat-row{gap:5px;}
+  .fbtn{font-size:.62rem;padding:4px 9px;}
+  .ends-row{gap:5px;}
+  .ebtn{font-size:.62rem;padding:3px 8px;}
+
+  /* Shortlist bar */
+  .sl-hdr{flex-wrap:wrap;gap:8px;}
+  .sl-actions{width:100%;}
+  .sl-compare-btn,.sl-clear-btn{flex:1;text-align:center;}
+
+  /* Stars grid — 2 columns on mobile */
+  .stars{grid-template-columns:repeat(2,1fr)!important;gap:8px;}
+  .scard{padding:10px 9px;gap:7px;}
+  .sbadge{font-size:1.3rem;min-width:20px;}
+  .snum{font-size:1rem;}
+  .sreason{display:none;}
+  .scv{font-size:1rem;}
+
+  /* Table → card list on mobile */
+  .tscroll{overflow-x:unset;}
+  table,thead,tbody,tr,th,td{display:block;width:100%;}
+  thead{display:none;}
+  tbody tr{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-left:none;
+    border-radius:12px;
+    margin-bottom:9px;
+    padding:11px 13px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    grid-template-rows:auto auto auto;
+    gap:3px 8px;
+    cursor:pointer;
+    transition:box-shadow .18s;
+  }
+  tbody tr.hl{border-left:3px solid var(--ac);}
+  tbody tr.dob-hl{border-left:3px solid var(--a4);}
+  tbody tr:hover{box-shadow:0 4px 16px var(--shadow);}
+  /* cell layout inside card */
+  tbody td{padding:0;border:none;background:none;}
+  tbody td:nth-child(1){grid-column:2;grid-row:1;text-align:right;}   /* rank */
+  tbody td:nth-child(2){grid-column:1;grid-row:1;}                     /* number */
+  tbody td:nth-child(3){grid-column:1/3;grid-row:2;}                   /* score bar */
+  tbody td:nth-child(4){grid-column:1;grid-row:3;}                     /* DOB badge */
+  tbody td:nth-child(5){grid-column:1/3;grid-row:4;padding-top:4px;}   /* tags */
+  tbody td:nth-child(6){display:none;}                                  /* why — hidden on mobile */
+  tbody td:nth-child(7){grid-column:2;grid-row:3;text-align:right;}    /* star */
+  .tnum{font-size:1.25rem;}
+  .sbar{margin-top:2px;}
+
+  /* Compare modal — stacked cards */
+  .cmp-modal{padding:16px 13px;border-radius:16px;}
+  .cmp-title{font-size:.95rem;}
+
+  /* Detail modal */
+  .det-modal{padding:16px 13px;border-radius:16px;}
+  .dgrid{grid-template-columns:repeat(2,1fr);}
+  .dplate{font-size:1.6rem;}
+
+  /* Guide modal */
+  .guide-modal{padding:18px 16px;}
+  .guide-grid{grid-template-columns:1fr;}
+
+  /* Float btn */
+  .float-compare-btn{padding:14px 20px;font-size:.95rem;}
+}
+
+@media(max-width:400px){
+  .stars{grid-template-columns:1fr!important;}
+  .dob-profile{grid-template-columns:repeat(2,1fr);}
+  .pbtn{font-size:.56rem;padding:5px 3px;}
+}
+</style>
+</head>
+<body>
+
+<div class="lding" id="lding"><div class="spin"></div><div class="ltxt">ANALYSING 9999 NUMBERS…</div></div>
+
+<div class="wrap">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div>
+    <div class="brand-title">Vehicle Number Selector</div>
+    <div style="font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--muted);margin-top:4px;letter-spacing:.5px;">Find Your Perfect Number</div>
+    <div class="brand-sub">0001–9999 · Numerology · DOB Compatibility</div>
+  </div>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span class="t-icon">☀️</span>
+    <div class="trk"><div class="thm"></div></div>
+    <span class="t-lbl" id="tlbl">LIGHT</span>
+  </button>
+</div>
+
+<!-- DOB PANEL -->
+<div class="panel dob-panel" style="animation:fadeUp .5s ease .03s both">
+  <div class="sec-title dob-sec-title">🪐 DATE OF BIRTH COMPATIBILITY</div>
+  <div style="font-size:.72rem;color:var(--muted);margin-bottom:12px;font-family:'DM Sans',sans-serif;line-height:1.45;">Enter your date of birth to find numbers numerologically aligned with your life path, ruling planet, and zodiac sign.</div>
+  <div class="dob-row">
+    <div class="dob-inp-wrap">
+      <span class="dob-lbl">Date of Birth</span>
+      <input type="date" class="dob-inp" id="dobInp" max="2099-12-31">
+    </div>
+    <button class="dob-calc-btn" onclick="calcDOB()">CALCULATE</button>
+    <button class="dob-clear-btn" onclick="clearDOB()">CLEAR</button>
+  </div>
+  <div class="dob-result" id="dobResult">
+    <!-- profile cards -->
+    <div class="dob-profile" id="dobProfile"></div>
+    <!-- compat legend -->
+    <div class="compat-row">
+      <span class="compat-lbl">Match Scale:</span>
+      <span class="compat-chip cc-best"><span class="cdot" style="background:#40d090"></span>Perfect Match</span>
+      <span class="compat-chip cc-good"><span class="cdot" style="background:#28aee4"></span>Compatible</span>
+      <span class="compat-chip cc-neutral"><span class="cdot" style="background:var(--muted)"></span>Neutral</span>
+      <span class="compat-chip cc-avoid"><span class="cdot" style="background:#e83070"></span>Avoid</span>
+    </div>
+  </div>
+</div>
+
+<!-- RANGE PANEL -->
+<div class="panel" style="animation:fadeUp .5s ease .07s both">
+  <div class="sec-title">⇔ SET NUMBER RANGE</div>
+  <div class="range-row">
+    <div class="rg"><span class="rl">From</span><input type="number" class="ri" id="sN" value="1" min="1" max="9999" oninput="updBadge()"></div>
+    <div class="rg"><span class="rl">To</span><input type="number" class="ri" id="eN" value="9999" min="1" max="9999" oninput="updBadge()"></div>
+    <div class="prow">
+      <button class="pbtn" onclick="setR(1,999)">0001–0999</button>
+      <button class="pbtn" onclick="setR(1000,1999)">1000–1999</button>
+      <button class="pbtn" onclick="setR(2000,2999)">2000–2999</button>
+      <button class="pbtn" onclick="setR(5000,5999)">5000–5999</button>
+      <button class="pbtn" onclick="setR(7000,7999)">7000–7999</button>
+      <button class="pbtn" onclick="setR(9000,9999)">9000–9999</button>
+      <button class="pbtn" onclick="setR(1,9999)" style="border-color:var(--a2);color:var(--a2)">All</button>
+    </div>
+    <div class="rbadge" id="rbadge">0001 – 9999</div>
+    <button class="abtn" onclick="applyR()">APPLY</button>
+  </div>
+  <div style="margin-top:10px;">
+    <div class="srch" style="margin-left:0;width:100%;max-width:220px;"><input type="text" id="srchIn" placeholder="Search number…" maxlength="4" oninput="onSrch()" style="width:100%;"></div>
+  </div>
+</div>
+
+<!-- COMMA LIST PANEL -->
+<div class="panel" style="animation:fadeUp .5s ease .1s both">
+  <div class="sec-title">✦ SPECIFIC NUMBERS (COMMA SEPARATED)</div>
+  <div class="cl-row">
+    <textarea class="cl-ta" id="clInput" placeholder="e.g. 7777, 1234, 5678, 9999, 4321 …"></textarea>
+    <div class="cl-btns">
+      <button class="cl-app" onclick="applyList()">APPLY LIST</button>
+      <button class="cl-clr" onclick="clearList()">CLEAR</button>
+    </div>
+  </div>
+  <div class="cl-prev" id="clPreview"></div>
+  <div class="cl-hint" id="clHint"></div>
+</div>
+
+<!-- FILTER PANEL -->
+<div class="panel" style="animation:fadeUp .5s ease .13s both">
+  <div class="fhdr">
+    <span class="sec-title" style="margin-bottom:0">FILTER BY CATEGORY</span>
+    <button class="info-btn" onclick="openGuide()" title="Category Guide">i</button>
+  </div>
+  <div class="cat-row">
+    <button class="fbtn f-all active" onclick="setF('all',this)">All</button>
+    <button class="fbtn f-dob" id="dobFilterBtn" onclick="setF('dob',this)" style="display:none"><span class="dot dot-dob"></span>DOB Match</button>
+    <button class="fbtn f-lucky" onclick="setF('lucky',this)"><span class="dot dot-lucky"></span>Lucky</button>
+    <button class="fbtn f-pattern" onclick="setF('pattern',this)"><span class="dot dot-pattern"></span>Pattern</button>
+    <button class="fbtn f-numerology" onclick="setF('numerology',this)"><span class="dot dot-numerology"></span>Numerology</button>
+    <button class="fbtn f-sequence" onclick="setF('sequence',this)"><span class="dot dot-sequence"></span>Sequence</button>
+    <button class="fbtn f-mirror" onclick="setF('mirror',this)"><span class="dot dot-mirror"></span>Mirror</button>
+    <button class="fbtn f-palindrome" onclick="setF('palindrome',this)"><span class="dot dot-palindrome"></span>Palindrome</button>
+    <button class="fbtn f-repeating" onclick="setF('repeating',this)"><span class="dot dot-repeating"></span>Repeating</button>
+    <button class="fbtn f-prime" onclick="setF('prime',this)"><span class="dot dot-prime"></span>Prime</button>
+    <button class="fbtn f-fibonacci" onclick="setF('fibonacci',this)"><span class="dot dot-fibonacci"></span>Fibonacci</button>
+    <button class="fbtn f-angel" onclick="setF('angel',this)"><span class="dot dot-angel"></span>Angel</button>
+    <button class="fbtn f-powernum" onclick="setF('powernum',this)"><span class="dot dot-powernum"></span>Power No.</button>
+    <button class="fbtn f-zodiac" onclick="setF('zodiac',this)"><span class="dot dot-zodiac"></span>Zodiac</button>
+    <button class="fbtn f-easy" onclick="setF('easy',this)"><span class="dot dot-easy"></span>Easy Memory</button>
+  </div>
+  <div class="ends-row">
+    <span class="ends-lbl">Ends in:</span>
+    <button class="ebtn" onclick="setEnds(1,this)">1 — Leadership</button>
+    <button class="ebtn" onclick="setEnds(3,this)">3 — Prosperity</button>
+    <button class="ebtn" onclick="setEnds(6,this)">6 — Harmony</button>
+    <button class="ebtn" onclick="setEnds(7,this)">7 — Luck</button>
+    <button class="ebtn" onclick="setEnds(8,this)">8 — Wealth</button>
+    <button class="ebtn" onclick="setEnds(9,this)">9 — Success</button>
+    <button class="ebtn" onclick="setEnds(0,this)" style="margin-left:4px;opacity:.7">Clear</button>
+  </div>
+</div>
+
+<!-- SHORTLIST BAR -->
+<div class="shortlist-bar" id="shortlistBar">
+  <div class="sl-hdr">
+    <span class="sl-title">⭐ SHORTLISTED</span>
+    <div class="sl-actions">
+      <button class="sl-compare-btn" onclick="openCompare()">COMPARE</button>
+      <button class="sl-clear-btn" onclick="clearShortlist()">CLEAR ALL</button>
+    </div>
+  </div>
+  <div class="sl-chips" id="slChips"></div>
+  <div class="sl-hint">Click any number card or row to add/remove from shortlist. Max 4.</div>
+</div>
+
+<!-- TOP 8 -->
+<div class="stars" id="stars"></div>
+
+<!-- TABLE -->
+<div class="tsec">
+  <div class="thdr">
+    <span class="ttitle">Recommendations</span>
+    <span class="cbadge" id="cbadge">–</span>
+  </div>
+  <div class="twrap">
+    <div class="tscroll">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="srtBy('rank')" id="th-rank">Rank <span class="sa">↕</span></th>
+            <th onclick="srtBy('num')" id="th-num">Number <span class="sa">↕</span></th>
+            <th onclick="srtBy('score')" id="th-score" class="sorted">Score <span class="sa">↓</span></th>
+            <th onclick="srtBy('dob')" id="th-dob">DOB Match <span class="sa">↕</span></th>
+            <th>Tags</th>
+            <th>Why It's Good</th>
+            <th>★</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="pag" id="pag"></div>
+</div>
+
+</div><!-- /wrap -->
+
+<!-- GUIDE MODAL -->
+<div class="guide-ov" id="guideOv" onclick="bgCloseGuide(event)">
+  <div class="guide-modal">
+    <button class="g-close" onclick="closeGuide()">✕</button>
+    <div class="guide-title">Category Guide</div>
+    <div class="guide-grid">
+      <div class="gi"><div class="gdot" style="background:#e8b830"></div><div class="gtxt"><b>Lucky</b>Root 1/3/7/9, ends in 8/7/1</div></div>
+      <div class="gi"><div class="gdot" style="background:#28aee4"></div><div class="gtxt"><b>Pattern</b>AABB pairs or symmetric digits</div></div>
+      <div class="gi"><div class="gdot" style="background:#e83070"></div><div class="gtxt"><b>Numerology</b>Div by 7/3, digit sums 7/9/11/21/28/33</div></div>
+      <div class="gi"><div class="gdot" style="background:#30e898"></div><div class="gtxt"><b>Sequence</b>Consecutive ±1 or ±2 steps</div></div>
+      <div class="gi"><div class="gdot" style="background:#b060f8"></div><div class="gtxt"><b>Mirror</b>ABBA or ABAB symmetric layout</div></div>
+      <div class="gi"><div class="gdot" style="background:#f06020"></div><div class="gtxt"><b>Palindrome</b>Same forwards & backwards</div></div>
+      <div class="gi"><div class="gdot" style="background:#f03838"></div><div class="gtxt"><b>Repeating</b>3+ identical digits (7770, 1111)</div></div>
+      <div class="gi"><div class="gdot" style="background:#60a8f0"></div><div class="gtxt"><b>Prime</b>A mathematically prime number</div></div>
+      <div class="gi"><div class="gdot" style="background:#40c840"></div><div class="gtxt"><b>Fibonacci</b>Appears in the Fibonacci sequence</div></div>
+      <div class="gi"><div class="gdot" style="background:#d060d0"></div><div class="gtxt"><b>Angel</b>Sacred spiritual numbers (1111, 5678…)</div></div>
+      <div class="gi"><div class="gdot" style="background:#f09020"></div><div class="gtxt"><b>Power No.</b>Multiples of 111, 222 … 999</div></div>
+      <div class="gi"><div class="gdot" style="background:#20e8c8"></div><div class="gtxt"><b>Zodiac</b>Master sums 11/22/33 or digits 8+9</div></div>
+      <div class="gi"><div class="gdot" style="background:#a8d820"></div><div class="gtxt"><b>Easy Memory</b>Only 1–2 unique digits</div></div>
+      <div class="gi"><div class="gdot" style="background:#40d090"></div><div class="gtxt"><b>DOB Match</b>Numerologically compatible with your birth date</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="det-ov" id="detOv" onclick="bgCloseDet(event)">
+  <div class="det-modal">
+    <div class="dplate" id="dNum"></div>
+    <div class="dfull" id="dFull"></div>
+    <div class="dgrid">
+      <div class="dbox"><div class="dbl">Score</div><div class="dbv" id="dSc"></div></div>
+      <div class="dbox"><div class="dbl">Digit Sum</div><div class="dbv" id="dDs"></div></div>
+      <div class="dbox"><div class="dbl">Root No.</div><div class="dbv" id="dRt"></div></div>
+    </div>
+    <div class="dob-compat-section" id="detDobSection" style="display:none">
+      <div class="doc-title">🪐 DOB Compatibility</div>
+      <div id="detDobRows"></div>
+    </div>
+    <div class="dbdown"><div class="dbt">Numerology Details</div><div id="dBd"></div></div>
+    <div class="dtags" id="dTags"></div>
+    <div class="dreason" id="dReason"></div>
+    <button class="dclose" onclick="document.getElementById('detOv').classList.remove('open')">CLOSE</button>
+    <button id="detSlBtn" onclick="toggleShortlistFromDet()" style="width:100%;margin-top:8px;background:var(--inp);border:1px solid var(--border);color:var(--muted);padding:9px;border-radius:9px;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:2px;cursor:pointer;transition:all .2s;">☆ ADD TO SHORTLIST</button>
+  </div>
+</div>
+
+<!-- COMPARE MODAL -->
+<div class="cmp-ov" id="cmpOv" onclick="bgCloseCmp(event)">
+  <div class="cmp-modal">
+    <div class="cmp-hdr">
+      <div class="cmp-title">⚖ COMPARE NUMBERS</div>
+      <button class="cmp-close" onclick="closeCompare()">✕</button>
+    </div>
+    <div id="cmpContent"></div>
+  </div>
+</div>
+
+<!-- FLOATING COMPARE BUTTON -->
+<div class="float-compare" id="floatCompare">
+  <button class="float-compare-btn" onclick="openCompare()">
+    <span>COMPARE</span>
+    <span class="float-compare-badge" id="floatBadge">0</span>
+  </button>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  THEME
+// ══════════════════════════════════════════════
+function toggleTheme(){
+  const h=document.documentElement,dark=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',dark?'light':'dark');
+  document.querySelector('.t-icon').textContent=dark?'☀️':'🌙';
+  document.getElementById('tlbl').textContent=dark?'LIGHT':'DARK';
+}
+
+// ══════════════════════════════════════════════
+//  GUIDE MODAL
+// ══════════════════════════════════════════════
+function openGuide(){document.getElementById('guideOv').classList.add('open');}
+function closeGuide(){document.getElementById('guideOv').classList.remove('open');}
+function bgCloseGuide(e){if(e.target===document.getElementById('guideOv'))closeGuide();}
+
+// ══════════════════════════════════════════════
+//  NUMEROLOGY MATH SETS
+// ══════════════════════════════════════════════
+const PRIMES=(()=>{const s=new Uint8Array(10000);s[0]=s[1]=1;for(let i=2;i<10000;i++)if(!s[i])for(let j=i*2;j<10000;j+=i)s[j]=1;const p=new Set();for(let i=2;i<10000;i++)if(!s[i])p.add(i);return p;})();
+const FIBS=new Set([0,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765]);
+const ANGELS=new Set([1111,2222,3333,4444,5555,6666,7777,8888,9999,1234,2345,3456,4567,5678,6789,1000,2000,3000,4000,5000,6000,7000,8000,9000,1001,2002,3003,4004,5005,6006,7007,8008,9009,1010,2020,3030,4040,5050,6060,7070,8080,9090,1212,2121,3434,4343,5656,6565,7878,8787,1122,2233,3344,4455,5566,6677,7788,8899,9876,8765,7654,6543,5432,4321,3210]);
+const POWERS=new Set();[111,222,333,444,555,666,777,888,999].forEach(b=>{for(let m=1;m*b<10000;m++)POWERS.add(m*b);});
+
+const pad=n=>String(n).padStart(4,'0');
+const dsum=n=>String(n).split('').reduce((a,b)=>a+parseInt(b),0);
+function root(n){let x=dsum(n);while(x>=10)x=dsum(x);return x;}
+function isZodiac(n){const d=pad(n).split('').map(Number),s=dsum(n);return[11,22,33,44].includes(s)||(d.includes(8)&&d.includes(9))||s===7||s===3;}
+
+// ══════════════════════════════════════════════
+//  DOB NUMEROLOGY ENGINE
+// ══════════════════════════════════════════════
+const PLANET_NAMES={1:'Sun ☀️',2:'Moon 🌙',3:'Jupiter ♃',4:'Rahu ☊',5:'Mercury ☿',6:'Venus ♀',7:'Ketu ☋',8:'Saturn ♄',9:'Mars ♂'};
+const PLANET_LUCKY={1:[1,2,9],2:[1,2,7],3:[3,6,9],4:[1,5,7],5:[1,5,6],6:[3,5,6],7:[2,7],8:[1,4,8],9:[1,3,9]};
+const PLANET_AVOID={1:[4,6,8],2:[4,8,9],3:[4,8],4:[2,6,9],5:[4],6:[1,4,9],7:[1,6,8],8:[3,7,9],9:[2,6,8]};
+const ZODIAC_NAMES=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+const ZODIAC_LUCKY={0:[1,9],1:[6,5],2:[5,7],3:[2,7],4:[1,4],5:[5,6],6:[6,9],7:[1,9],8:[3,9],9:[4,8],10:[4,7],11:[3,7]};
+const LP_MEANING={1:'The Leader — independent, ambitious, original',2:'The Diplomat — sensitive, cooperative, intuitive',3:'The Creator — expressive, social, optimistic',4:'The Builder — practical, disciplined, stable',5:'The Adventurer — freedom-loving, versatile, curious',6:'The Nurturer — caring, responsible, harmonious',7:'The Seeker — introspective, analytical, spiritual',8:'The Achiever — powerful, material success, authority',9:'The Humanitarian — compassionate, generous, wisdom',11:'The Visionary — highly intuitive, inspirational',22:'The Master Builder — large-scale goals, pragmatic vision',33:'The Master Teacher — spiritual leader, healing energy'};
+
+// Zodiac sign from date
+// 0=Aries,1=Taurus,2=Gemini,3=Cancer,4=Leo,5=Virgo,
+// 6=Libra,7=Scorpio,8=Sagittarius,9=Capricorn,10=Aquarius,11=Pisces
+function getZodiac(day,month){
+  // [cutoffDay, signIfOnOrBefore, signIfAfter]
+  const b=[[19,9,10],[18,10,11],[20,11,0],[19,0,1],[20,1,2],[20,2,3],[22,3,4],[22,4,5],[22,5,6],[22,6,7],[21,7,8],[21,8,9]];
+  const r=b[month-1];
+  return day<=r[0]?r[1]:r[2];
+}
+
+// Ruling planet from birth day digit
+function getRulingPlanet(day){
+  let x=day;while(x>9)x=dsum(x);return x===0?9:x;
+}
+
+// Life Path: sum all DOB digits to single (except master 11,22,33)
+function getLifePath(dd,mm,yyyy){
+  const allDigits=String(dd)+String(mm)+String(yyyy);
+  let s=allDigits.split('').reduce((a,b)=>a+parseInt(b),0);
+  while(s>33||(s>9&&s!==11&&s!==22&&s!==33))s=dsum(s);
+  return s;
+}
+
+// Destiny: same as life path (used interchangeably here for display variety)
+function getDestiny(dd,mm,yyyy){
+  // day + month reduced, then + year reduced
+  let d2=dd;while(d2>9)d2=dsum(d2);
+  let m2=mm;while(m2>9)m2=dsum(m2);
+  let y2=parseInt(String(yyyy).split('').reduce((a,b)=>String(parseInt(a)+parseInt(b))));
+  while(y2>9)y2=dsum(y2);
+  let sum=d2+m2+y2;
+  while(sum>9&&sum!==11&&sum!==22&&sum!==33)sum=dsum(sum);
+  return sum;
+}
+
+// Birthday number
+function getBirthDay(dd){
+  let x=dd;while(x>9)x=dsum(x);return x;
+}
+
+// Compatibility of a vehicle root with Life Path
+function getCompat(vRoot,lp,planet){
+  const lpSingle=lp>9?root(lp):lp;
+  const lucky=PLANET_LUCKY[planet]||[];
+  const avoid=PLANET_AVOID[planet]||[];
+  if(vRoot===lpSingle)return 'best';
+  if(lucky.includes(vRoot))return 'good';
+  if(avoid.includes(vRoot))return 'avoid';
+  return 'neutral';
+}
+
+// DOB bonus score for a number (0–40 points)
+function dobBonus(n,dobData){
+  if(!dobData)return 0;
+  const vr=root(n);
+  const {lp,planet,bdNum,zodiacIdx}=dobData;
+  const lpS=lp>9?root(lp):lp;
+  let bonus=0;
+  // Life path exact match
+  if(vr===lpS)bonus+=28;
+  // Planet lucky
+  const lucky=PLANET_LUCKY[planet]||[];
+  const avoid=PLANET_AVOID[planet]||[];
+  if(lucky.includes(vr))bonus+=18;
+  if(avoid.includes(vr))bonus-=20;
+  // Birth day number match
+  if(vr===bdNum)bonus+=12;
+  // Zodiac lucky
+  const zl=ZODIAC_LUCKY[zodiacIdx]||[];
+  if(zl.includes(vr))bonus+=10;
+  // Digit sum matches life path
+  if(dsum(n)===lp)bonus+=8;
+  return bonus;
+}
+
+// DOB state
+let dobData=null;
+
+function calcDOB(){
+  const val=document.getElementById('dobInp').value;
+  if(!val){alert('Please enter a valid date of birth.');return;}
+  const d=new Date(val);
+  const dd=d.getDate(),mm=d.getMonth()+1,yyyy=d.getFullYear();
+  const lp=getLifePath(dd,mm,yyyy);
+  const planet=getRulingPlanet(dd);
+  const bdNum=getBirthDay(dd);
+  const zodiacIdx=getZodiac(dd,mm);
+  dobData={dd,mm,yyyy,lp,planet,bdNum,zodiacIdx};
+  // rebuild scores with DOB bonus
+  allData.forEach(item=>{
+    item.dobBonus=dobBonus(item.n,dobData);
+    item.totalScore=Math.min(100,item.score+Math.max(0,item.dobBonus));
+    item.compat=getCompat(root(item.n),lp,planet);
+    item.isDobMatch=item.compat==='best'||item.compat==='good';
+  });
+  renderDOBProfile(dobData);
+  document.getElementById('dobResult').classList.add('show');
+  document.getElementById('dobFilterBtn').style.display='';
+  // Auto-activate DOB Match filter when no specific list active
+  // When a specific list is active, applyFilter handles the intersection automatically
+  if(!specificList.length){
+    const dobBtn=document.getElementById('dobFilterBtn');
+    setF('dob',dobBtn);
+  } else {
+    applyFilter();
+  }
+}
+
+function clearDOB(){
+  dobData=null;
+  allData.forEach(item=>{item.dobBonus=0;item.totalScore=item.score;item.compat=null;item.isDobMatch=false;});
+  document.getElementById('dobResult').classList.remove('show');
+  document.getElementById('dobFilterBtn').style.display='none';
+  document.getElementById('dobInp').value='';
+  if(curFilter==='dob'){setF('all',document.querySelector('.f-all'));}
+  else applyFilter();
+}
+
+function renderDOBProfile(d){
+  const lpSingle=d.lp>9?root(d.lp):d.lp;
+  const zodName=ZODIAC_NAMES[d.zodiacIdx];
+  const lucky=(PLANET_LUCKY[d.planet]||[]).join(', ');
+  const avoid=(PLANET_AVOID[d.planet]||[]).join(', ');
+  const cards=[
+    {icon:'🔢',lbl:'Life Path',val:d.lp,sub:LP_MEANING[d.lp]||''},
+    {icon:'☀️',lbl:'Ruling Planet',val:PLANET_NAMES[d.planet],sub:`Lucky nos: ${lucky}`},
+    {icon:'📅',lbl:'Birth Day No.',val:d.bdNum,sub:`Day ${d.dd} reduces to ${d.bdNum}`},
+    {icon:'♏',lbl:'Zodiac Sign',val:zodName,sub:`Lucky nos: ${(ZODIAC_LUCKY[d.zodiacIdx]||[]).join(', ')}`},
+    {icon:'✅',lbl:'Best Roots',val:lucky,sub:'Vehicle number root'},
+    {icon:'⚠️',lbl:'Avoid Roots',val:avoid,sub:'May bring challenges'},
+  ];
+  document.getElementById('dobProfile').innerHTML=cards.map(c=>`
+    <div class="dob-card">
+      <div class="dob-card-icon">${c.icon}</div>
+      <div class="dob-card-lbl">${c.lbl}</div>
+      <div class="dob-card-val" style="font-size:${String(c.val).length>4?'1rem':'1.5rem'}">${c.val}</div>
+      <div class="dob-card-sub">${c.sub}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+//  TAG ENGINE
+// ══════════════════════════════════════════════
+function tags(n){
+  const s=pad(n),d=s.split('').map(Number),t=new Set();
+  const red=root(n),sum=dsum(n);
+  const cnt={};d.forEach(x=>cnt[x]=(cnt[x]||0)+1);
+  const maxR=Math.max(...Object.values(cnt));
+  const df=[d[1]-d[0],d[2]-d[1],d[3]-d[2]];
+  if(maxR>=3){t.add('repeating');t.add('easy');}
+  if(s===s.split('').reverse().join(''))t.add('palindrome');
+  if(d[0]===d[3]&&d[1]===d[2])t.add('mirror');
+  if(d[0]===d[2]&&d[1]===d[3])t.add('mirror');
+  if(d[0]===d[1]&&d[2]===d[3])t.add('pattern');
+  if(t.has('palindrome')||t.has('mirror'))t.add('pattern');
+  if(df.every(x=>x===1)||df.every(x=>x===-1)||df.every(x=>x===2)||df.every(x=>x===-2))t.add('sequence');
+  if([1,3,7,9].includes(red))t.add('lucky');
+  if([1,3,7,8,9].includes(d[3]))t.add('lucky');
+  if([1,3,7,8,9].includes(d[0]))t.add('lucky');
+  if(n%7===0||n%3===0)t.add('numerology');
+  if([7,9,11,21,28,33,36,45].includes(sum))t.add('numerology');
+  if([1,3,7,9].includes(red))t.add('numerology');
+  if(PRIMES.has(n))t.add('prime');
+  if(FIBS.has(n))t.add('fibonacci');
+  if(ANGELS.has(n))t.add('angel');
+  if(POWERS.has(n))t.add('powernum');
+  if(isZodiac(n))t.add('zodiac');
+  if(new Set(d).size<=2)t.add('easy');
+  return[...t];
+}
+
+function calcScore(n){
+  let sc=0;const s=pad(n),d=s.split('').map(Number),red=root(n),sum=dsum(n);
+  const cnt={};d.forEach(x=>cnt[x]=(cnt[x]||0)+1);const maxR=Math.max(...Object.values(cnt));
+  const df=[d[1]-d[0],d[2]-d[1],d[3]-d[2]];
+  const rs={7:25,1:22,9:22,3:20,8:18,6:15,5:12,2:8,4:-5,0:0};sc+=(rs[red]||0);
+  if(s===s.split('').reverse().join(''))sc+=28;
+  if(df.every(x=>x===1))sc+=22;if(df.every(x=>x===-1))sc+=20;
+  if(df.every(x=>x===2))sc+=16;if(df.every(x=>x===-2))sc+=14;
+  if(d[0]===d[3]&&d[1]===d[2])sc+=24;if(d[0]===d[2]&&d[1]===d[3])sc+=22;if(d[0]===d[1]&&d[2]===d[3])sc+=20;
+  if(maxR===4)sc+=35;else if(maxR===3)sc+=20;else if(maxR===2)sc+=8;
+  const es={8:14,7:12,1:10,9:10,3:8,6:6,0:5,2:2,5:2};sc+=(es[d[3]]||0);
+  if(PRIMES.has(n))sc+=10;if(FIBS.has(n))sc+=15;if(ANGELS.has(n))sc+=20;if(POWERS.has(n))sc+=12;
+  if(isZodiac(n))sc+=8;if(n%7===0)sc+=12;if(n%3===0)sc+=5;
+  if([11,22,33].includes(sum))sc+=15;if([7,9,21,28].includes(sum))sc+=8;
+  if(new Set(d).size===1)sc+=12;else if(new Set(d).size===2)sc+=6;
+  sc-=d.filter(x=>x===4).length*10;
+  return Math.max(1,Math.min(sc,100));
+}
+
+function reason(n){
+  const s=pad(n),d=s.split('').map(Number),red=root(n),sum=dsum(n);
+  const df=[d[1]-d[0],d[2]-d[1],d[3]-d[2]];
+  const RM={1:'Leadership & new beginnings',3:'Growth, creativity & prosperity',7:'Universal luck & wisdom',8:'Wealth, abundance & infinity',9:'Completion & universal love',6:'Harmony & balance',5:'Freedom & adventure',4:'Stability (use with care)'};
+  const p=[];
+  if(RM[red])p.push(`Root ${red} → ${RM[red]}.`);
+  if(df.every(x=>x===1))p.push('Ascending sequence — progress & momentum.');
+  if(df.every(x=>x===-1))p.push('Descending sequence — structured & memorable.');
+  if(df.every(x=>x===2))p.push('Skip-2 sequence — rhythmic cadence.');
+  if(s===s.split('').reverse().join(''))p.push('Palindrome — perfectly balanced & powerful.');
+  if(d[0]===d[3]&&d[1]===d[2])p.push('ABBA mirror — elegant symmetry.');
+  if(d[0]===d[2]&&d[1]===d[3])p.push('ABAB pattern — catchy & rhythmic.');
+  if(d[0]===d[1]&&d[2]===d[3])p.push('Double-pair AABB — easy to recall.');
+  const cnt={};d.forEach(x=>cnt[x]=(cnt[x]||0)+1);const mx=Math.max(...Object.values(cnt));
+  if(mx===4)p.push('All identical digits — supremely memorable!');
+  else if(mx===3)p.push('Three matching digits — strong visual pattern.');
+  if(PRIMES.has(n))p.push('Prime number — unique & indivisible identity.');
+  if(FIBS.has(n))p.push('Fibonacci — aligns with nature\'s golden ratio.');
+  if(ANGELS.has(n))p.push('Angel number — divine & spiritual symbolism.');
+  if(POWERS.has(n))p.push('Power number — master digit sequence multiple.');
+  if(n%7===0)p.push('Divisible by 7 — universally the luckiest number.');
+  if([11,22,33].includes(sum))p.push(`Digit sum ${sum} — master number in numerology.`);
+  if(d[3]===8)p.push('Ends in 8 — wealth & infinite prosperity.');
+  return p.slice(0,3).join(' ')||`Digit sum ${sum}, reduces to root ${red}.`;
+}
+
+function breakdown(n){
+  const d=pad(n).split('').map(Number);
+  return[['Number',pad(n)],['Digits',d.join(' + ')],['Digit Sum',dsum(n)],['Root Number',root(n)],['Unique Digits',new Set(d).size],['Ends In',d[3]],['Starts With',d[0]],['Is Prime',PRIMES.has(n)?'✓ Yes':'No'],['Is Fibonacci',FIBS.has(n)?'✓ Yes':'No'],['Is Angel',ANGELS.has(n)?'✓ Yes':'No'],['Is Power No.',POWERS.has(n)?'✓ Yes':'No'],['Div by 7',n%7===0?'✓ Yes':'No'],['Div by 3',n%3===0?'✓ Yes':'No']];
+}
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let allData=[],filtered=[];
+let rStart=1,rEnd=9999;
+let curFilter='all',curSort={key:'score',dir:-1};
+let curPage=1;
+const PER=25;
+let srchTerm='';
+let specificList=[];
+let shortlist=[];
+let endsInFilter=0;
+
+function buildData(s,e){
+  const out=[];
+  for(let n=s;n<=e;n++){
+    const sc=calcScore(n);
+    out.push({n,score:sc,totalScore:sc,dobBonus:0,compat:null,isDobMatch:false,tags:tags(n),reason:reason(n),ds:dsum(n),root:root(n)});
+  }
+  out.sort((a,b)=>b.score-a.score);
+  out.forEach((d,i)=>d.rank=i+1);
+  return out;
+}
+
+function init(){
+  setTimeout(()=>{
+    allData=buildData(1,9999);
+    document.getElementById('lding').classList.add('hidden');
+    applyFilter();
+  },80);
+}
+
+// RANGE
+function updBadge(){
+  const s=Math.max(1,parseInt(document.getElementById('sN').value)||1);
+  const e=Math.min(9999,parseInt(document.getElementById('eN').value)||9999);
+  document.getElementById('rbadge').textContent=pad(s)+' – '+pad(e);
+}
+function setR(s,e){document.getElementById('sN').value=s;document.getElementById('eN').value=e;updBadge();applyR();}
+function applyR(){
+  specificList=[];renderChips();
+  document.getElementById('clInput').value='';
+  document.getElementById('clHint').textContent='';
+  let s=Math.max(1,parseInt(document.getElementById('sN').value)||1);
+  let e=Math.min(9999,parseInt(document.getElementById('eN').value)||9999);
+  if(e<s)e=s;
+  rStart=s;rEnd=e;
+  document.getElementById('rbadge').textContent=pad(s)+' – '+pad(e);
+  curPage=1;
+  applyFilter();
+}
+
+// COMMA LIST
+function applyList(){
+  const raw=document.getElementById('clInput').value;
+  const nums=[...new Set(raw.split(/[\s,،、，]+/).map(x=>parseInt(x.trim())).filter(x=>!isNaN(x)&&x>=1&&x<=9999))];
+  if(!nums.length){document.getElementById('clHint').textContent='No valid numbers (1–9999) found.';return;}
+  specificList=nums;renderChips();
+  document.getElementById('clHint').textContent=`${nums.length} number${nums.length>1?'s':''} loaded.`;
+  curPage=1;applyFilter();
+}
+function clearList(){
+  specificList=[];document.getElementById('clInput').value='';renderChips();
+  document.getElementById('clHint').textContent='';curPage=1;applyFilter();
+}
+function removeChip(n){
+  specificList=specificList.filter(x=>x!==n);renderChips();
+  if(!specificList.length){document.getElementById('clHint').textContent='';document.getElementById('clInput').value='';}
+  else document.getElementById('clHint').textContent=`${specificList.length} number(s) loaded.`;
+  curPage=1;applyFilter();
+}
+function renderChips(){
+  const el=document.getElementById('clPreview');
+  if(!specificList.length){el.innerHTML='';return;}
+  el.innerHTML=specificList.map(n=>`<span class="cl-chip">${pad(n)}<button onclick="removeChip(${n})">✕</button></span>`).join('');
+}
+
+// FILTER
+function setF(f,btn){
+  curFilter=f;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');curPage=1;applyFilter();
+}
+function onSrch(){srchTerm=document.getElementById('srchIn').value.trim();curPage=1;applyFilter();}
+
+function applyFilter(){
+  // Base pool: specific list takes priority over range
+  let data=specificList.length
+    ?allData.filter(d=>specificList.includes(d.n))
+    :allData.filter(d=>d.n>=rStart&&d.n<=rEnd);
+
+  // When BOTH specific list and DOB are active, intersect:
+  // show only numbers in the list that are also DOB-compatible, sorted by totalScore
+  if(specificList.length&&dobData){
+    data=data.filter(d=>d.isDobMatch);
+  } else if(curFilter==='dob'){
+    data=data.filter(d=>d.isDobMatch);
+  } else if(curFilter!=='all'){
+    data=data.filter(d=>d.tags.includes(curFilter));
+  }
+
+  if(endsInFilter>0)data=data.filter(d=>d.n%10===endsInFilter);
+  if(srchTerm)data=data.filter(d=>pad(d.n).includes(srchTerm)||String(d.n).includes(srchTerm));
+
+  // Sort by totalScore whenever DOB data is present, otherwise use column sort
+  if(dobData){
+    data.sort((a,b)=>b.totalScore-a.totalScore);
+  } else {
+    const m={rank:'rank',num:'n',score:'totalScore',dob:'dobBonus'};
+    data.sort((a,b)=>curSort.dir*(a[m[curSort.key]||'totalScore']-b[m[curSort.key]||'totalScore']));
+  }
+
+  filtered=data;
+  renderStars();renderTable();renderPag();
+  document.getElementById('cbadge').textContent=filtered.length.toLocaleString()+' numbers';
+}
+
+function srtBy(k){
+  if(curSort.key===k)curSort.dir*=-1;else{curSort.key=k;curSort.dir=-1;}
+  document.querySelectorAll('th').forEach(t=>t.classList.remove('sorted'));
+  const el=document.getElementById('th-'+k);
+  if(el){el.classList.add('sorted');el.querySelector('.sa').textContent=curSort.dir===-1?'↓':'↑';}
+  applyFilter();
+}
+
+// RENDER STARS
+function renderStars(){
+  const top=filtered.slice(0,8);
+  const medals=['🥇','🥈','🥉','4','5','6','7','8'],cls=['rk1','rk2','rk3','rk4','rk5','rk6','rk4','rk5'];
+  document.getElementById('stars').innerHTML=top.map((d,i)=>`
+    <div class="scard ${cls[i]}" onclick="openDet(${d.n})">
+      <div class="sbadge">${medals[i]}</div>
+      <div class="sinfo">
+        <div class="snum">${pad(d.n)}</div>
+        <div class="sreason">${d.reason.substring(0,68)}…</div>
+        <div class="stags">${d.tags.slice(0,3).map(t=>`<span class="tag tag-${t}">${t}</span>`).join('')}${d.compat?`<span class="compat-badge ${d.compat==='best'?'cb-best':d.compat==='good'?'cb-good':d.compat==='avoid'?'cb-avoid':'cb-neutral'}" style="margin-left:3px">${d.compat==='best'?'⭐ Perfect':d.compat==='good'?'✓ Compat':d.compat==='avoid'?'⚠ Avoid':'Neutral'}</span>`:''}</div>
+      </div>
+      <div class="ssc">
+        <span class="scl">Score</span>
+        <span class="scv">${d.totalScore}</span>
+        ${dobData&&d.dobBonus>0?`<span style="font-size:.6rem;color:var(--a4);display:block">+${d.dobBonus} DOB</span>`:''}
+        <button onclick="event.stopPropagation();toggleShortlist(${d.n})" id="sl-star-${d.n}" style="margin-top:4px;background:none;border:1px solid var(--border);border-radius:6px;width:24px;height:22px;cursor:pointer;font-size:.7rem;color:var(--muted);transition:all .2s;" title="Shortlist">${shortlist.includes(d.n)?'★':'☆'}</button>
+      </div>
+    </div>`).join('');
+}
+
+// RENDER TABLE
+const compatInfo={best:{cls:'cb-best',lbl:'⭐ Perfect'},good:{cls:'cb-good',lbl:'✓ Compat'},neutral:{cls:'cb-neutral',lbl:'Neutral'},avoid:{cls:'cb-avoid',lbl:'⚠ Avoid'}};
+function renderTable(){
+  const s=(curPage-1)*PER,page=filtered.slice(s,s+PER);
+  const tb=document.getElementById('tbody');
+  if(!page.length){tb.innerHTML=`<tr><td colspan="7" class="nores">No numbers match this combination</td></tr>`;return;}
+  tb.innerHTML=page.map((d,i)=>{
+    const sc=d.totalScore,c=sc>=55?'sfh'+(d.dobBonus>0?' sfdob':''):sc>=30?'sfm':'sfl';
+    const col=sc>=55?'var(--gold)':sc>=30?'var(--a2)':'var(--muted)';
+    const ci=d.compat?compatInfo[d.compat]:null;
+    const rowCls=d.rank<=3?'hl':(d.compat==='best'||d.compat==='good')?'dob-hl':'';
+    const slActive=shortlist.includes(d.n);
+    return`<tr class="${rowCls}" onclick="openDet(${d.n})">
+      <td><span style="font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted)">#${s+i+1}</span></td>
+      <td><span class="tnum">${pad(d.n)}</span></td>
+      <td><div class="sbar"><div class="strk"><div class="sfil ${c}" style="width:${sc}%"></div></div><span class="sn" style="color:${col}">${sc}</span></div></td>
+      <td>${ci?`<span class="compat-badge ${ci.cls}">${ci.lbl}</span>`:`<span style="color:var(--muted2);font-size:.65rem">—</span>`}</td>
+      <td>${d.tags.slice(0,3).map(t=>`<span class="tag tag-${t}">${t}</span>`).join('')}${d.tags.length>3?`<span style="color:var(--muted);font-size:.58rem"> +${d.tags.length-3}</span>`:''}</td>
+      <td><div class="rtext">${d.reason.substring(0,78)}…</div></td>
+      <td><button onclick="event.stopPropagation();toggleShortlist(${d.n})" id="sl-row-${d.n}" style="background:${slActive?'rgba(232,184,48,.15)':'none'};border:1px solid ${slActive?'rgba(232,184,48,.5)':'var(--border)'};border-radius:6px;padding:3px 7px;cursor:pointer;font-size:.75rem;color:${slActive?'var(--ac)':'var(--muted)'};transition:all .2s;" title="${slActive?'Remove from shortlist':'Add to shortlist'}">${slActive?'★':'☆'}</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// PAGINATION
+function renderPag(){
+  const total=Math.ceil(filtered.length/PER),pag=document.getElementById('pag');
+  if(total<=1){pag.innerHTML='';return;}
+  let h=`<button class="pgb" onclick="goP(${curPage-1})" ${curPage===1?'disabled':''}>‹</button>`;
+  const range=[];
+  for(let i=1;i<=total;i++){if(i===1||i===total||(i>=curPage-2&&i<=curPage+2))range.push(i);else if(range[range.length-1]!=='…')range.push('…');}
+  range.forEach(p=>{if(p==='…')h+=`<span style="color:var(--muted);padding:0 3px">…</span>`;else h+=`<button class="pgb ${p===curPage?'active':''}" onclick="goP(${p})">${p}</button>`;});
+  h+=`<button class="pgb" onclick="goP(${curPage+1})" ${curPage===total?'disabled':''}>›</button>`;
+  pag.innerHTML=h;
+}
+function goP(p){
+  const total=Math.ceil(filtered.length/PER);if(p<1||p>total)return;
+  curPage=p;renderTable();renderPag();
+  window.scrollTo({top:document.querySelector('.tsec').offsetTop-20,behavior:'smooth'});
+}
+
+// DETAIL MODAL
+let detCurrentN=null;
+function openDet(n){
+  const d=allData.find(x=>x.n===n);if(!d)return;
+  detCurrentN=n;
+  document.getElementById('dNum').textContent=pad(n);
+  document.getElementById('dFull').textContent=pad(n);
+  document.getElementById('dSc').textContent=d.totalScore;
+  document.getElementById('dDs').textContent=d.ds;
+  document.getElementById('dRt').textContent=d.root;
+  document.getElementById('dTags').innerHTML=d.tags.map(t=>`<span class="tag tag-${t}">${t}</span>`).join(' ');
+  document.getElementById('dReason').textContent=d.reason;
+  document.getElementById('dBd').innerHTML=breakdown(n).map(([k,v])=>`<div class="dbr"><span class="dbk">${k}</span><span class="dbv2">${v}</span></div>`).join('');
+  // DOB compat section
+  const sec=document.getElementById('detDobSection');
+  if(dobData&&d.compat){
+    sec.style.display='';
+    const lpS=dobData.lp>9?root(dobData.lp):dobData.lp;
+    const ci=compatInfo[d.compat];
+    const rows=[
+      ['Compatibility',`<span class="compat-badge ${ci.cls}">${ci.lbl}</span>`],
+      ['Vehicle Root',root(n)],
+      ['Your Life Path',dobData.lp+(dobData.lp!==lpS?` (root ${lpS})`:'')],
+      ['Your Ruling Planet',PLANET_NAMES[dobData.planet]],
+      ['Your Zodiac',ZODIAC_NAMES[dobData.zodiacIdx]],
+      ['DOB Bonus Score',d.dobBonus>0?`+${d.dobBonus}`:(d.dobBonus<0?d.dobBonus:'0')],
+    ];
+    document.getElementById('detDobRows').innerHTML=rows.map(([k,v])=>`<div class="doc-row"><span class="doc-k">${k}</span><span class="doc-v">${v}</span></div>`).join('');
+  } else { sec.style.display='none'; }
+  // Shortlist button
+  const slBtn=document.getElementById('detSlBtn');
+  const inSl=shortlist.includes(n);
+  slBtn.textContent=(inSl?'★ REMOVE FROM SHORTLIST':'☆ ADD TO SHORTLIST');
+  slBtn.style.color=inSl?'var(--ac)':'var(--muted)';
+  slBtn.style.borderColor=inSl?'rgba(232,184,48,.5)':'var(--border)';
+  document.getElementById('detOv').classList.add('open');
+}
+function toggleShortlistFromDet(){
+  if(detCurrentN===null)return;
+  toggleShortlist(detCurrentN);
+  const slBtn=document.getElementById('detSlBtn');
+  const inSl=shortlist.includes(detCurrentN);
+  slBtn.textContent=(inSl?'★ REMOVE FROM SHORTLIST':'☆ ADD TO SHORTLIST');
+  slBtn.style.color=inSl?'var(--ac)':'var(--muted)';
+  slBtn.style.borderColor=inSl?'rgba(232,184,48,.5)':'var(--border)';
+}
+function bgCloseDet(e){if(e.target===document.getElementById('detOv'))document.getElementById('detOv').classList.remove('open');}
+
+// ══════════════════════════════════════════════
+//  ENDS-IN FILTER
+// ══════════════════════════════════════════════
+function setEnds(d,btn){
+  document.querySelectorAll('.ebtn').forEach(b=>b.classList.remove('active'));
+  if(endsInFilter===d){endsInFilter=0;}
+  else{endsInFilter=d;if(d>0)btn.classList.add('active');}
+  curPage=1;applyFilter();
+}
+
+// ══════════════════════════════════════════════
+//  SHORTLIST & COMPARE
+// ══════════════════════════════════════════════
+function toggleShortlist(n){
+  if(shortlist.includes(n)){
+    shortlist=shortlist.filter(x=>x!==n);
+  } else {
+    if(shortlist.length>=4){alert('Max 4 numbers can be shortlisted for comparison.');return;}
+    shortlist.push(n);
+  }
+  renderShortlistBar();
+  // refresh star buttons and table buttons
+  document.querySelectorAll('[id^="sl-star-"],[id^="sl-row-"]').forEach(btn=>{
+    const num=parseInt(btn.id.split('-').pop());
+    const active=shortlist.includes(num);
+    btn.textContent=active?'★':'☆';
+    btn.style.color=active?'var(--ac)':'var(--muted)';
+    btn.style.background=active?'rgba(232,184,48,.15)':'none';
+    btn.style.borderColor=active?'rgba(232,184,48,.5)':'var(--border)';
+  });
+}
+
+function renderShortlistBar(){
+  const bar=document.getElementById('shortlistBar');
+  const chips=document.getElementById('slChips');
+  const floatBtn=document.getElementById('floatCompare');
+  const floatBadge=document.getElementById('floatBadge');
+  if(!shortlist.length){
+    bar.classList.remove('has-items');
+    floatBtn.classList.remove('show');
+    return;
+  }
+  bar.classList.add('has-items');
+  chips.innerHTML=shortlist.map(n=>`
+    <span class="sl-chip" onclick="toggleShortlist(${n})" title="Remove">
+      ${pad(n)} <span style="opacity:.6">✕</span>
+    </span>`).join('');
+  // Show floating button only when 2+ items shortlisted
+  if(shortlist.length>=2){
+    floatBtn.classList.add('show');
+    floatBadge.textContent=shortlist.length;
+  } else {
+    floatBtn.classList.remove('show');
+  }
+}
+
+function clearShortlist(){
+  shortlist=[];
+  renderShortlistBar();
+  document.getElementById('floatCompare').classList.remove('show');
+  renderStars();renderTable();
+}
+
+function openCompare(){
+  if(shortlist.length<2){alert('Add at least 2 numbers to compare.');return;}
+  const nums=shortlist.map(n=>allData.find(d=>d.n===n)).filter(Boolean);
+  const cols=nums.length;
+  const isMobile=window.innerWidth<=640;
+
+  const scores=nums.map(d=>d.totalScore);
+  const maxSc=Math.max(...scores),minSc=Math.min(...scores);
+  const roots=nums.map(d=>root(d.n));
+  const ends=nums.map(d=>d.n%10);
+  const dsums=nums.map(d=>d.ds);
+  const maxDs=Math.max(...dsums);
+
+  const ROOT_MEANING={1:'Sun — Leadership',2:'Moon — Intuition',3:'Jupiter — Growth',4:'Rahu — Unstable',5:'Mercury — Agile',6:'Venus — Harmony',7:'Ketu — Spiritual',8:'Saturn — Discipline',9:'Mars — Energy'};
+  const END_MEANING={0:'Neutral',1:'Leadership',2:'Balance',3:'Creativity',4:'Avoid',5:'Adventure',6:'Harmony',7:'Universal Luck',8:'Wealth',9:'Completion'};
+
+  const rowDefs=[
+    {lbl:'Score',      fn:(d,i)=>({v:scores[i],          best:scores[i]===maxSc, worst:scores[i]===minSc&&cols>1&&minSc!==maxSc})},
+    {lbl:'Root No.',   fn:(d,i)=>({v:`${roots[i]} — ${(ROOT_MEANING[roots[i]]||'').split('—')[1]||''}`, best:[1,3,7,9].includes(roots[i]),worst:roots[i]===4})},
+    {lbl:'Ends In',    fn:(d,i)=>({v:`${ends[i]} (${END_MEANING[ends[i]]||''})`,   best:[7,8,1,9].includes(ends[i]),worst:ends[i]===4})},
+    {lbl:'Digit Sum',  fn:(d,i)=>({v:dsums[i],            best:dsums[i]===maxDs,  worst:false})},
+    {lbl:'Palindrome', fn:(d)  =>({v:pad(d.n)===pad(d.n).split('').reverse().join('')?'✓ Yes':'—', best:pad(d.n)===pad(d.n).split('').reverse().join('')})},
+    {lbl:'Memory',     fn:(d)  =>({v:d.tags.includes('easy')?'Easy':d.tags.includes('pattern')||d.tags.includes('palindrome')?'Good':'Average', best:d.tags.includes('easy')})},
+    {lbl:'Categories', fn:(d)  =>({v:d.tags.slice(0,4).join(', ')})},
+  ];
+
+  // Verdict
+  const winner=nums.reduce((a,b)=>a.totalScore>b.totalScore?a:b);
+  const reasons=[];
+  if(winner.tags.includes('palindrome'))reasons.push('palindrome symmetry');
+  if(winner.tags.includes('angel'))reasons.push('angel number energy');
+  if([1,3,7,9].includes(root(winner.n)))reasons.push(`lucky root ${root(winner.n)}`);
+  if(winner.n%10===8)reasons.push('ends in 8 for wealth');
+  if(winner.n%10===7)reasons.push('ends in 7 for universal luck');
+  if(winner.dobBonus>0)reasons.push('strong DOB compatibility');
+  const verdictHtml=`<strong style="color:var(--ac)">${pad(winner.n)}</strong> scores highest${reasons.length?` — benefits from ${reasons.slice(0,2).join(' & ')}`:''}. ${winner.reason}`;
+
+  let h='';
+
+  if(isMobile){
+    // ── MOBILE: one card per number ──────────────────
+    h+=`<div style="display:flex;flex-direction:column;gap:14px;">`;
+    nums.forEach((d,i)=>{
+      const isWinner=d.n===winner.n;
+      h+=`<div style="background:var(--surface);border:2px solid ${isWinner?'var(--ac)':'var(--border)'};border-radius:14px;padding:14px;position:relative;">`;
+      if(isWinner)h+=`<div style="position:absolute;top:-1px;right:12px;background:var(--ac);color:#000;font-family:'Bebas Neue',sans-serif;font-size:.7rem;letter-spacing:2px;padding:2px 10px;border-radius:0 0 8px 8px;">TOP PICK</div>`;
+      // Header
+      h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:4px;color:var(--ac);line-height:1;">${pad(d.n)}</div>
+        <div style="text-align:right;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:${isWinner?'var(--gold)':'var(--a2)'}">${d.totalScore}</div>
+          <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace;">SCORE${d.dobBonus>0?` +${d.dobBonus} DOB`:''}</div>
+        </div>
+      </div>`;
+      if(d.compat)h+=`<div style="margin-bottom:8px;"><span class="compat-badge cb-${d.compat}">${d.compat==='best'?'⭐ Perfect':d.compat==='good'?'✓ Compat':d.compat==='avoid'?'⚠ Avoid':'Neutral'}</span></div>`;
+      // Rows as label:value pairs
+      h+=`<div style="display:flex;flex-direction:column;gap:5px;">`;
+      rowDefs.forEach(row=>{
+        const cell=row.fn(d,i);
+        h+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:.62rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;">${row.lbl}</span>
+          <span class="cmp-cell ${cell.best?'best':cell.worst?'worst':''}" style="font-size:.72rem;padding:2px 8px;max-width:60%;text-align:right;">${cell.v}</span>
+        </div>`;
+      });
+      h+=`</div></div>`;
+    });
+    h+=`</div>`;
+  } else {
+    // ── DESKTOP: grid layout ──────────────────────────
+    const gridStyle=`grid-template-columns:110px repeat(${cols},1fr)`;
+    h+=`<div style="display:grid;${gridStyle};gap:10px;margin-bottom:14px;">
+      <div></div>
+      ${nums.map(d=>`<div class="cmp-col-head">
+        <div class="cmp-col-num">${pad(d.n)}</div>
+        <div class="cmp-col-score">Score: ${d.totalScore}${d.dobBonus>0?` (+${d.dobBonus} DOB)`:''}</div>
+        ${d.compat?`<div style="margin-top:4px"><span class="compat-badge cb-${d.compat}">${d.compat==='best'?'⭐ Perfect':d.compat==='good'?'✓ Compat':d.compat==='avoid'?'⚠ Avoid':'Neutral'}</span></div>`:''}
+      </div>`).join('')}
+    </div>`;
+    rowDefs.forEach(row=>{
+      h+=`<div style="display:grid;${gridStyle};gap:10px;margin-bottom:8px;">
+        <div style="font-size:.63rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;">${row.lbl}</div>
+        ${nums.map((d,i)=>{const cell=row.fn(d,i);return`<div class="cmp-cell ${cell.best?'best':cell.worst?'worst':''}">${cell.v}</div>`;}).join('')}
+      </div>`;
+    });
+  }
+
+  // Verdict (both layouts)
+  h+=`<div style="margin-top:16px;padding:12px 14px;border-radius:10px;background:var(--surface);border:1px solid rgba(232,184,48,.25);">
+    <div style="font-size:.6rem;color:var(--ac);font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">Verdict</div>
+    <div style="font-size:.8rem;color:var(--text);line-height:1.6;">${verdictHtml}</div>
+  </div>`;
+
+  document.getElementById('cmpContent').innerHTML=h;
+  document.getElementById('cmpOv').classList.add('open');
+}
+
+function closeCompare(){document.getElementById('cmpOv').classList.remove('open');}
+function bgCloseCmp(e){if(e.target===document.getElementById('cmpOv'))closeCompare();}
+
+init();
+</script>
+</body>
+</html>
