@@ -1238,7 +1238,7 @@ function renderCompare(){
     '<th style="min-width:100px;">Attribute</th>'+
     nums.map(d=>{
       const saved=shortlist.includes(d.n);
-      return'<th class="num-col" style="min-width:100px;"><div class="cmp-num-display">'+pad(d.n)+'</div><div class="cmp-saved-label">'+(saved?'⭐ Saved':'')+'</div></th>';
+      return'<th class="num-col" style="min-width:100px;"><div class="cmp-num-display">'+pad(d.n)+'</div><div class="cmp-saved-label">'+(d.rank?'#'+d.rank:'—')+'</div></th>';
     }).join('')+
     '</tr></thead><tbody>'+
     rows.map(row=>'<tr><td class="row-label">'+row.label+'</td>'+nums.map(d=>'<td>'+row.fn(d)+'</td>').join('')+'</tr>').join('')+
