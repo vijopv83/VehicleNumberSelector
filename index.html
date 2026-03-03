@@ -1069,12 +1069,30 @@ function openDetail(n){
     ['Root No.',String(root(n))],
     ['Rank',d.rank?'#'+d.rank:'—'],
     ['Unique Digits',String(new Set(pad(n).split('')).size)],
-    ['Divisible by 7',n%7===0?'Yes':'No'],
-    ['Divisible by 3',n%3===0?'Yes':'No'],
   ];
+
+  // Divisibility section
+  const divItems=[
+    {by:7,label:'÷ 7',note:'Lucky'},
+    {by:3,label:'÷ 3',note:'Jupiter'},
+    {by:9,label:'÷ 9',note:'Mars / Completion'},
+    {by:11,label:'÷ 11',note:'Master — Vision'},
+    {by:22,label:'÷ 22',note:'Master — Builder'},
+    {by:33,label:'÷ 33',note:'Master — Teacher'},
+  ];
+  const divHits=divItems.filter(x=>n%x.by===0);
+  const divRow='<div class="bk-row" style="align-items:flex-start;padding:10px 0;">'+
+    '<span class="bk-key">Divisibility</span>'+
+    '<span class="bk-val" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;">'+
+    (divHits.length
+      ? divHits.map(x=>'<span class="tag tag-lucky">'+x.label+' <span style="opacity:.7;font-size:.62rem;">'+x.note+'</span></span>').join('')
+      : '<span style="color:var(--muted);font-size:.78rem;">None</span>')+
+    '</span></div>';
+
   document.getElementById('dBreakdown').innerHTML=
     categoriesRow+
-    breakdownRows.map(([k,v])=>'<div class="bk-row"><span class="bk-key">'+k+'</span><span class="bk-val">'+v+'</span></div>').join('');
+    breakdownRows.map(([k,v])=>'<div class="bk-row"><span class="bk-key">'+k+'</span><span class="bk-val">'+v+'</span></div>').join('')+
+    divRow;
 
   // Nav arrows: operate over current filtered list
   const filteredNums=getFiltered().map(x=>x.n);
