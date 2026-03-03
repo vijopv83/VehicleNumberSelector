@@ -1132,7 +1132,17 @@ function saveFromModal(){
 
 // NAV
 function scrollToStep1(){document.getElementById('step1').scrollIntoView({behavior:'smooth'});}
-function scrollToResults(){if(document.getElementById('resultsSection').style.display==='none')showResults();setTimeout(()=>document.getElementById('step2').scrollIntoView({behavior:'smooth'}),100);}
+function scrollToResults(){
+  if(document.getElementById('resultsSection').style.display==='none')showResults();
+  if(dobData){
+    curFilter='dob';
+    document.querySelectorAll('.cat-item').forEach(b=>b.classList.remove('active'));
+    const dobBtn=document.getElementById('catDobBtn');
+    if(dobBtn)dobBtn.classList.add('active');
+    refreshActiveTab();
+  }
+  setTimeout(()=>document.getElementById('step2').scrollIntoView({behavior:'smooth'}),100);
+}
 
 // MOBILE FILTERS
 function toggleMobileFilters(){
