@@ -247,27 +247,27 @@ td{padding:10px 13px;font-size:.85rem;vertical-align:middle;}
 /* MODAL */
 .overlay{position:fixed;inset:0;background:rgba(28,26,23,.55);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
 .overlay.open{opacity:1;pointer-events:all;}
-.modal{background:var(--surface);border-radius:var(--r-lg);padding:32px;max-width:460px;width:100%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:var(--shadow-lg);transform:translateY(12px);transition:transform .2s;}
+.modal{background:var(--surface);border-radius:var(--r-lg);padding:18px 20px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;position:relative;box-shadow:var(--shadow-lg);transform:translateY(12px);transition:transform .2s;}
 .overlay.open .modal{transform:translateY(0);}
-.modal-nav-bar{display:flex;align-items:center;gap:6px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border);}
-.modal-nav-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .18s;color:var(--text);flex-shrink:0;}
+.modal-nav-bar{display:flex;align-items:center;gap:5px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.modal-nav-btn{width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .18s;color:var(--text);flex-shrink:0;}
 .modal-nav-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent);background:rgba(200,98,42,.06);}
 .modal-nav-btn:disabled{opacity:.3;cursor:not-allowed;}
 .modal-nav-counter{font-size:.75rem;color:var(--muted);flex:1;text-align:center;font-family:'JetBrains Mono',monospace;}
-.modal-close{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.modal-close{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
 .modal-close:hover{background:var(--text);color:#fff;border-color:var(--text);}
-.modal-num{font-family:'Playfair Display',serif;font-size:3rem;font-weight:900;color:var(--text);line-height:1;margin-bottom:6px;}
-.modal-sub{font-size:.83rem;color:var(--muted);margin-bottom:20px;}
+.modal-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--text);line-height:1;margin-bottom:3px;}
+.modal-sub{font-size:.76rem;color:var(--muted);margin-bottom:10px;}
 .modal-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px;}
 .ms{background:var(--bg);border-radius:var(--r-sm);padding:12px;text-align:center;}
 .ms-l{font-size:.6rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;}
 .ms-v{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;}
-.modal-why{font-size:.86rem;color:var(--muted);line-height:1.6;margin-bottom:18px;padding:13px;background:var(--bg);border-radius:var(--r-sm);}
+.modal-why{font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:10px;padding:8px 10px;background:var(--bg);border-radius:var(--r-sm);}
 .bk-list{display:flex;flex-direction:column;gap:0;}
-.bk-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);}
+.bk-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);}
 .bk-row:last-child{border-bottom:none;}
-.bk-key{font-size:.75rem;color:var(--muted);}
-.bk-val{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text);font-weight:500;}
+.bk-key{font-size:.7rem;color:var(--muted);}
+.bk-val{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text);font-weight:500;}
 
 /* LOADER */
 #loader{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s;}
@@ -292,14 +292,14 @@ section{padding:48px 0;}
 @media(max-width:640px){.step-section{padding:20px 16px;}section{padding:30px 0;}#hero{padding:48px 0 36px;}.hero-badges{gap:12px;}}
 
 /* MODAL SECTIONS */
-.modal-section-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border);}
-.dob-compat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
-.dob-compat-card{background:var(--bg);border-radius:var(--r-sm);padding:10px 12px;border:1px solid var(--border);}
+.modal-section-label{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.dob-compat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+.dob-compat-card{background:var(--bg);border-radius:var(--r-sm);padding:7px 9px;border:1px solid var(--border);}
 .dob-compat-card.highlight{border-color:var(--green);background:rgba(42,124,82,.06);}
 .dob-compat-card.warn{border-color:var(--accent);background:rgba(200,98,42,.05);}
-.dcc-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:3px;}
-.dcc-value{font-size:.88rem;font-weight:600;color:var(--text);}
-.dcc-sub{font-size:.7rem;color:var(--muted);margin-top:2px;}
+.dcc-label{font-size:.56rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:2px;}
+.dcc-value{font-size:.78rem;font-weight:600;color:var(--text);}
+.dcc-sub{font-size:.65rem;color:var(--muted);margin-top:1px;}
 .compat-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:100px;font-size:.75rem;font-weight:600;}
 .compat-badge.best{background:rgba(42,124,82,.12);color:var(--green);border:1px solid rgba(42,124,82,.3);}
 .compat-badge.good{background:rgba(42,124,138,.12);color:var(--accent2);border:1px solid rgba(42,124,138,.3);}
@@ -345,7 +345,7 @@ th:hover{color:var(--accent);background:rgba(200,98,42,.04);}
       <div class="hero-actions">
         <button class="btn btn-primary" onclick="scrollToStep1()">✦ Start with Date of Birth</button>
         <button class="btn btn-secondary" onclick="browseManually()">Browse all numbers</button>
-        <a class="btn btn-secondary" href="https://fancy.parivahan.gov.in" target="_blank" rel="noopener">🔗 Check Parivahan</a>
+        <a class="btn btn-secondary" href="https://fancy.parivahan.gov.in/fancy/faces/public/availableAllNumbers.xhtml" target="_blank" rel="noopener">🔗 Check Parivahan</a>
       </div>
       <div class="hero-badges">
         <div class="hb"><div class="hb-num">9,999</div><div class="hb-lbl">Numbers Analyzed</div></div>
@@ -560,7 +560,7 @@ th:hover{color:var(--accent);background:rgba(200,98,42,.04);}
     </div>
 
     <!-- Header -->
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:3px;">
       <div class="modal-num" id="dNum"></div>
       <div id="dCompatBadge" style="margin-top:8px;"></div>
     </div>
@@ -581,7 +581,7 @@ th:hover{color:var(--accent);background:rgba(200,98,42,.04);}
     <div class="modal-section-label">Breakdown &amp; Categories</div>
     <div class="bk-list" id="dBreakdown"></div>
 
-    <div style="display:flex;gap:10px;margin-top:20px;">
+    <div style="display:flex;gap:8px;margin-top:12px;">
       <button class="btn btn-primary" id="modalSaveBtn" style="flex:1;" onclick="saveFromModal()">☆ Save Number</button>
       <button class="btn btn-secondary btn-sm" onclick="closeDetail()">Close</button>
     </div>
@@ -1061,7 +1061,7 @@ function openDetail(n){
 
   // Combined breakdown + categories
   const tagHtml=tags.filter(t=>TAG_MAP[t]).map(t=>'<span class="tag '+TAG_MAP[t].cls+'">'+TAG_MAP[t].label+'</span>').join('');
-  const categoriesRow='<div class="bk-row" style="align-items:flex-start;padding:10px 0;"><span class="bk-key">Categories</span><span class="bk-val" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;">'+(tagHtml||'<span style="color:var(--muted);font-size:.78rem;">None</span>')+'</span></div>';
+  const categoriesRow='<div class="bk-row" style="align-items:flex-start;padding:4px 0;"><span class="bk-key">Categories</span><span class="bk-val" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;">'+(tagHtml||'<span style="color:var(--muted);font-size:.78rem;">None</span>')+'</span></div>';
 
   const breakdownRows=[
     ['Score',String(d.totalScore)],
@@ -1081,7 +1081,7 @@ function openDetail(n){
     {by:33,label:'÷ 33',note:'Master — Teacher'},
   ];
   const divHits=divItems.filter(x=>n%x.by===0);
-  const divRow='<div class="bk-row" style="align-items:flex-start;padding:10px 0;">'+
+  const divRow='<div class="bk-row" style="align-items:flex-start;padding:4px 0;">'+
     '<span class="bk-key">Divisibility</span>'+
     '<span class="bk-val" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;">'+
     (divHits.length
