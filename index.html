@@ -566,8 +566,6 @@ th:hover{color:var(--accent);background:rgba(200,98,42,.04);}
     </div>
     <div class="modal-sub" id="dSub"></div>
 
-    <!-- Score + key stats row -->
-    <div class="modal-stats" id="dStats"></div>
 
     <!-- Why it's good -->
     <div class="modal-section-label">Why It's Good</div>
@@ -989,14 +987,6 @@ function openDetail(n){
   const compatText=d.compat?{best:'Perfect DOB Match — shares your Life Path root',good:'Compatible with your Date of Birth',avoid:'May create friction with your numerology profile',neutral:'Neutral — no strong alignment or conflict'}[d.compat]:'Enter your DOB above for personalised compatibility.';
   document.getElementById('dSub').textContent=compatText;
 
-  // Stats row
-  document.getElementById('dStats').innerHTML=[
-    {l:'Score',v:d.totalScore},
-    {l:'Digit Sum',v:dsum(n)},
-    {l:'Root No.',v:root(n)},
-    {l:'Rank',v:d.rank?'#'+d.rank:'—'}
-  ].map(s=>'<div class="ms"><div class="ms-l">'+s.l+'</div><div class="ms-v">'+s.v+'</div></div>').join('');
-
   // Tags (used in breakdown below)
   const TAG_MAP={
     angel:{label:'👼 Angel',cls:'tag-spirit'},
@@ -1074,10 +1064,11 @@ function openDetail(n){
   const categoriesRow='<div class="bk-row" style="align-items:flex-start;padding:10px 0;"><span class="bk-key">Categories</span><span class="bk-val" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;">'+(tagHtml||'<span style="color:var(--muted);font-size:.78rem;">None</span>')+'</span></div>';
 
   const breakdownRows=[
-    ['Number',pad(n)],
+    ['Score',String(d.totalScore)],
+    ['Digit Sum',String(dsum(n))],
+    ['Root No.',String(root(n))],
+    ['Rank',d.rank?'#'+d.rank:'—'],
     ['Unique Digits',String(new Set(pad(n).split('')).size)],
-    ['Starts With',pad(n)[0]],
-    ['Ends In',pad(n)[3]],
     ['Divisible by 7',n%7===0?'Yes':'No'],
     ['Divisible by 3',n%3===0?'Yes':'No'],
   ];
