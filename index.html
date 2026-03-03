@@ -314,22 +314,22 @@ th:hover{color:var(--accent);background:rgba(200,98,42,.04);}
 .t-save-btn:hover{background:rgba(212,168,50,.12);}
 .t-root-val{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--muted);}
 .t-mono-sm{font-family:'JetBrains Mono',monospace;font-size:.82rem;}
-.cmp-num-display{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:900;}
-.cmp-saved-label{font-size:.65rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400;margin-top:2px;}
+.cmp-num-display{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:900;}
+.cmp-saved-label{font-size:.55rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400;margin-top:1px;}
 
 /* COMPARE TABLE */
 .compare-table{border-collapse:collapse;min-width:100%;}
-.compare-table th{background:var(--bg);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 14px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap;cursor:default;}
-.compare-table th.num-col{font-family:'Playfair Display',serif;font-size:1.1rem;text-transform:none;color:var(--text);letter-spacing:0;}
-.compare-table td{padding:10px 14px;font-size:.85rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+.compare-table th{background:var(--bg);font-size:.6rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:7px 10px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap;cursor:default;}
+.compare-table th.num-col{font-family:'Playfair Display',serif;font-size:.95rem;text-transform:none;color:var(--text);letter-spacing:0;}
+.compare-table td{padding:5px 10px;font-size:.76rem;border-bottom:1px solid var(--border);vertical-align:middle;}
 .compare-table tr:last-child td{border-bottom:none;}
-.compare-table .row-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--bg);white-space:nowrap;}
+.compare-table .row-label{font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg);white-space:nowrap;}
 .compare-best{color:var(--green);font-weight:600;}
 .compare-good{color:var(--accent2);font-weight:600;}
 .compare-avoid{color:var(--accent);}
-.compare-bar-wrap{display:flex;align-items:center;gap:8px;}
-.compare-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;min-width:50px;}
-.compare-winner{background:rgba(42,124,82,.08);border-left:3px solid var(--green);}
+.compare-bar-wrap{display:flex;align-items:center;gap:5px;}
+.compare-bar{flex:1;height:3px;background:var(--border);border-radius:3px;overflow:hidden;min-width:36px;}
+.compare-winner{background:rgba(42,124,82,.07);border-left:2px solid var(--green);}
 </style>
 </head>
 <body>
@@ -540,9 +540,13 @@ th:hover{color:var(--accent);background:rgba(200,98,42,.04);}
 <!-- COMPARE OVERLAY -->
 <div class="overlay" id="compareOverlay" onclick="closeCompareBg(event)">
   <div class="modal" style="max-width:900px;width:100%;">
-    <button class="modal-close" onclick="closeCompare()">✕</button>
-    <h2 style="font-size:1.3rem;margin-bottom:4px;">Compare Saved Numbers</h2>
-    <p style="font-size:.82rem;color:var(--muted);margin-bottom:20px;">Side-by-side numerology breakdown of your shortlisted numbers.</p>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div>
+        <div style="font-size:.95rem;font-weight:700;color:var(--text);">⚖ Compare Saved Numbers</div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:2px;">Side-by-side numerology breakdown</div>
+      </div>
+      <button class="modal-close" style="position:static;flex-shrink:0;" onclick="closeCompare()">✕</button>
+    </div>
     <div id="compareGrid" style="overflow-x:auto;"></div>
   </div>
 </div>
@@ -872,6 +876,7 @@ function renderAllTable(){
   const pages=Math.ceil(total/TABLE_PER);let pag='';for(let p=1;p<=Math.min(pages,8);p++)pag+='<button class="pag-btn'+(p===tablePage?' active':'')+'" onclick="gotoPage('+p+')">'+p+'</button>';
   if(pages>8)pag+='<span style="font-size:.76rem;color:var(--muted);padding:0 5px;">…'+pages+'p</span>';
   document.getElementById('tablePag').innerHTML=pag;
+  syncSaveButtons();
 }
 function gotoPage(p){tablePage=p;renderAllTable();document.getElementById('tab-all').scrollIntoView({behavior:'smooth',block:'start'});}
 
@@ -932,7 +937,7 @@ function toggleSave(n,btn){
     shortlist=shortlist.filter(x=>x!==n);
     if(btn&&btn.classList.contains('action-save')){btn.textContent='☆ Save';btn.classList.remove('saved');}
   } else {
-    if(shortlist.length>=6){alert('Maximum 6 numbers can be saved.');return;}
+    if(shortlist.length>=6){return;} // max enforced via disabled state
     shortlist.push(n);
     if(btn&&btn.classList.contains('action-save')){btn.textContent='⭐ Saved';btn.classList.add('saved');}
   }
@@ -952,9 +957,38 @@ function toggleSave(n,btn){
 }
 function renderShortlist(){
   const bar=document.getElementById('shortlistBar');const chips=document.getElementById('slChips');
-  if(!shortlist.length){bar.classList.remove('visible');chips.innerHTML='';return;}
+  if(!shortlist.length){bar.classList.remove('visible');chips.innerHTML='';syncSaveButtons();return;}
   bar.classList.add('visible');
   chips.innerHTML=shortlist.map(n=>'<div class="sl-chip"><span>'+pad(n)+'</span><button onclick="toggleSave('+n+')">✕</button></div>').join('');
+  syncSaveButtons();
+}
+function syncSaveButtons(){
+  const full=shortlist.length>=6;
+  // Card save buttons
+  document.querySelectorAll('.action-save').forEach(b=>{
+    const n=parseInt(b.getAttribute('onclick').match(/\d+/)?.[0]);
+    const saved=shortlist.includes(n);
+    b.disabled=!saved&&full;
+    b.style.opacity=(!saved&&full)?'0.35':'';
+    b.style.cursor=(!saved&&full)?'not-allowed':'';
+  });
+  // Table star buttons
+  document.querySelectorAll('.t-save-btn').forEach(b=>{
+    const n=parseInt(b.id.replace('tsave-',''));
+    const saved=shortlist.includes(n);
+    b.disabled=!saved&&full;
+    b.style.opacity=(!saved&&full)?'0.35':'';
+    b.style.cursor=(!saved&&full)?'not-allowed':'';
+  });
+  // Modal save button
+  const mBtn=document.getElementById('modalSaveBtn');
+  if(mBtn&&modalNum){
+    const saved=shortlist.includes(modalNum);
+    mBtn.disabled=!saved&&full;
+    mBtn.style.opacity=(!saved&&full)?'0.45':'';
+    if(!saved&&full){mBtn.textContent='☆ Save Number (Full)';}
+    else if(!saved){mBtn.textContent='☆ Save Number';mBtn.style.background='var(--accent)';}
+  }
 }
 function clearShortlist(){
   shortlist=[];
@@ -1179,15 +1213,24 @@ function renderCompare(){
     }},
     {label:'Root Number',fn:d=>'<span class="t-mono-sm">'+root(d.n)+'</span>'},
     {label:'Digit Sum',fn:d=>'<span class="t-mono-sm">'+dsum(d.n)+'</span>'},
-    {label:'Is Prime',fn:d=>PRIMES.has(d.n)?'✓ Yes':'—'},
-    {label:'Is Angel Number',fn:d=>ANGELS.has(d.n)?'✓ Yes':'—'},
-    {label:'Is Fibonacci',fn:d=>FIBS.has(d.n)?'✓ Yes':'—'},
-    {label:'Is Power Number',fn:d=>POWERS.has(d.n)?'✓ Yes':'—'},
-    {label:'Lucky Category',fn:d=>{const t=d.tags||getTags(d.n);const cats=[];if(t.includes('angel'))cats.push('Angel');if(t.includes('lucky'))cats.push('Lucky');if(t.includes('sequence'))cats.push('Sequence');if(t.includes('palindrome'))cats.push('Palindrome');if(t.includes('mirror'))cats.push('Mirror');return cats.length?cats.join(', '):'—';}},
+    {label:'Categories',fn:d=>{
+      const t=d.tags||getTags(d.n);
+      const CAT_MAP={angel:{l:'👼',cls:'tag-spirit'},lucky:{l:'✨',cls:'tag-lucky'},sequence:{l:'↗',cls:'tag-compat'},palindrome:{l:'🔁',cls:'tag-spirit'},mirror:{l:'🪞',cls:'tag-spirit'},powernum:{l:'⚡',cls:'tag-power'},prime:{l:'⭐',cls:'tag-lucky'},fibonacci:{l:'🌀',cls:'tag-lucky'},easy:{l:'💡',cls:'tag-compat'},repeating:{l:'🔄',cls:'tag-power'}};
+      const chips=t.filter(x=>CAT_MAP[x]).map(x=>'<span class="tag '+CAT_MAP[x].cls+'" title="'+x+'" style="font-size:.75rem;padding:2px 5px;min-width:0;">'+CAT_MAP[x].l+'</span>').join('');
+      return'<div style="display:flex;flex-wrap:wrap;gap:2px;max-width:110px;">'+(chips||'<span style="color:var(--muted)">—</span>')+'</div>';
+    }},
+    {label:'Divisibility',fn:d=>{
+      const divItems=[{by:7,label:'÷7',title:'Lucky'},{by:3,label:'÷3',title:'Jupiter'},{by:9,label:'÷9',title:'Mars'},{by:11,label:'÷11',title:'Master Vision'},{by:22,label:'÷22',title:'Master Builder'},{by:33,label:'÷33',title:'Master Teacher'}];
+      const hits=divItems.filter(x=>d.n%x.by===0);
+      return hits.length?'<div style="display:flex;flex-wrap:wrap;gap:2px;max-width:110px;">'+hits.map(x=>'<span class="tag tag-lucky" title="'+x.title+'" style="font-size:.65rem;padding:2px 5px;">'+x.label+'</span>').join('')+'</div>':'—';
+    }},
     {label:'Why It\'s Good',fn:d=>'<span style="font-size:.78rem;color:var(--muted);line-height:1.4;display:block;max-width:160px;">'+d.reason.split('.')[0]+'.</span>'},
     {label:'Action',fn:d=>{
       const saved=shortlist.includes(d.n);
-      return'<div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="btn btn-sm btn-primary" onclick="openDetail('+d.n+');closeCompare();" style="padding:6px 12px;font-size:.75rem;">Details</button><button class="btn btn-sm btn-secondary" onclick="toggleSave('+d.n+',null);renderCompare();" style="padding:6px 12px;font-size:.75rem;">'+(saved?'✕ Remove':'⭐ Save')+'</button></div>';
+      return'<div style="display:flex;gap:5px;align-items:center;">'+
+        '<button title="View Details" onclick="openDetail('+d.n+');closeCompare();" style="width:30px;height:30px;border-radius:6px;border:1.5px solid var(--border);background:var(--accent);color:#fff;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;">🔍</button>'+
+        '<button title="'+(saved?'Remove':'Save')+'" onclick="toggleSave('+d.n+',null);renderCompare();" style="width:30px;height:30px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;">'+(saved?'✕':'☆')+'</button>'+
+      '</div>';
     }},
   ];
 
@@ -1195,7 +1238,7 @@ function renderCompare(){
     '<th style="min-width:100px;">Attribute</th>'+
     nums.map(d=>{
       const saved=shortlist.includes(d.n);
-      return'<th class="num-col" style="min-width:130px;"><div class="cmp-num-display">'+pad(d.n)+'</div><div class="cmp-saved-label">'+(saved?'⭐ Saved':'')+'</div></th>';
+      return'<th class="num-col" style="min-width:100px;"><div class="cmp-num-display">'+pad(d.n)+'</div><div class="cmp-saved-label">'+(saved?'⭐ Saved':'')+'</div></th>';
     }).join('')+
     '</tr></thead><tbody>'+
     rows.map(row=>'<tr><td class="row-label">'+row.label+'</td>'+nums.map(d=>'<td>'+row.fn(d)+'</td>').join('')+'</tr>').join('')+
