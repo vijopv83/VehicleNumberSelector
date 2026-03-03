@@ -249,7 +249,12 @@ td{padding:10px 13px;font-size:.85rem;vertical-align:middle;}
 .overlay.open{opacity:1;pointer-events:all;}
 .modal{background:var(--surface);border-radius:var(--r-lg);padding:32px;max-width:460px;width:100%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:var(--shadow-lg);transform:translateY(12px);transition:transform .2s;}
 .overlay.open .modal{transform:translateY(0);}
-.modal-close{position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.modal-nav-bar{display:flex;align-items:center;gap:6px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.modal-nav-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .18s;color:var(--text);flex-shrink:0;}
+.modal-nav-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent);background:rgba(200,98,42,.06);}
+.modal-nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+.modal-nav-counter{font-size:.75rem;color:var(--muted);flex:1;text-align:center;font-family:'JetBrains Mono',monospace;}
+.modal-close{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
 .modal-close:hover{background:var(--text);color:#fff;border-color:var(--text);}
 .modal-num{font-family:'Playfair Display',serif;font-size:3rem;font-weight:900;color:var(--text);line-height:1;margin-bottom:6px;}
 .modal-sub{font-size:.83rem;color:var(--muted);margin-bottom:20px;}
@@ -286,6 +291,21 @@ td{padding:10px 13px;font-size:.85rem;vertical-align:middle;}
 section{padding:48px 0;}
 @media(max-width:640px){.step-section{padding:20px 16px;}section{padding:30px 0;}#hero{padding:48px 0 36px;}.hero-badges{gap:12px;}}
 
+/* MODAL SECTIONS */
+.modal-section-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.dob-compat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.dob-compat-card{background:var(--bg);border-radius:var(--r-sm);padding:10px 12px;border:1px solid var(--border);}
+.dob-compat-card.highlight{border-color:var(--green);background:rgba(42,124,82,.06);}
+.dob-compat-card.warn{border-color:var(--accent);background:rgba(200,98,42,.05);}
+.dcc-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:3px;}
+.dcc-value{font-size:.88rem;font-weight:600;color:var(--text);}
+.dcc-sub{font-size:.7rem;color:var(--muted);margin-top:2px;}
+.compat-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:100px;font-size:.75rem;font-weight:600;}
+.compat-badge.best{background:rgba(42,124,82,.12);color:var(--green);border:1px solid rgba(42,124,82,.3);}
+.compat-badge.good{background:rgba(42,124,138,.12);color:var(--accent2);border:1px solid rgba(42,124,138,.3);}
+.compat-badge.avoid{background:rgba(200,98,42,.1);color:var(--accent);border:1px solid rgba(200,98,42,.25);}
+.compat-badge.neutral{background:var(--bg);color:var(--muted);border:1px solid var(--border);}
+
 /* TABLE SORT */
 th{position:relative;user-select:none;}
 th:hover{color:var(--accent);background:rgba(200,98,42,.04);}
@@ -321,11 +341,11 @@ th:hover{color:var(--accent);background:rgba(200,98,42,.04);}
   <div class="container" style="max-width:1300px;margin:0 auto;padding:0 20px;">
     <div class="hero-inner">
       <h1>Find Your Perfect Vehicle Number</h1>
-      <p>Aligned with your Date of Birth and Numerology; guided in 3 simple steps</p>
+      <p>Aligned with your Date of Birth and numerology — guided in 3 simple steps</p>
       <div class="hero-actions">
         <button class="btn btn-primary" onclick="scrollToStep1()">✦ Start with Date of Birth</button>
         <button class="btn btn-secondary" onclick="browseManually()">Browse all numbers</button>
-        <a class="btn btn-secondary" href="https://fancy.parivahan.gov.in/fancy" target="_blank" rel="noopener">🔗 Check Parivahan</a>
+        <a class="btn btn-secondary" href="https://fancy.parivahan.gov.in/fancy/faces/public/availableAllNumbers.xhtml" target="_blank" rel="noopener">🔗 Check Parivahan</a>
       </div>
       <div class="hero-badges">
         <div class="hb"><div class="hb-num">9,999</div><div class="hb-lbl">Numbers Analyzed</div></div>
@@ -529,14 +549,40 @@ th:hover{color:var(--accent);background:rgba(200,98,42,.04);}
 
 <!-- DETAIL MODAL -->
 <div class="overlay" id="detailOverlay" onclick="closeDetailBg(event)">
-  <div class="modal">
-    <button class="modal-close" onclick="closeDetail()">✕</button>
-    <div class="modal-num" id="dNum"></div>
+  <div class="modal" style="max-width:520px;">
+
+    <!-- Nav arrows + close -->
+    <div class="modal-nav-bar">
+      <button class="modal-nav-btn" id="modalPrev" onclick="navigateDetail(-1)" title="Previous number">&#8592;</button>
+      <span class="modal-nav-counter" id="modalNavCounter"></span>
+      <button class="modal-nav-btn" id="modalNext" onclick="navigateDetail(1)" title="Next number">&#8594;</button>
+      <button class="modal-close" style="position:static;margin-left:auto;" onclick="closeDetail()">✕</button>
+    </div>
+
+    <!-- Header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;">
+      <div class="modal-num" id="dNum"></div>
+      <div id="dCompatBadge" style="margin-top:8px;"></div>
+    </div>
     <div class="modal-sub" id="dSub"></div>
+
+    <!-- Score + key stats row -->
     <div class="modal-stats" id="dStats"></div>
+
+    <!-- Why it's good -->
+    <div class="modal-section-label">Why It's Good</div>
     <div class="modal-why" id="dWhy"></div>
-    <div class="label" style="margin-bottom:10px;">Full Breakdown</div>
+
+    <!-- DOB Compatibility — shown only when DOB entered -->
+    <div id="dDobSection" style="display:none;">
+      <div class="modal-section-label">DOB Compatibility</div>
+      <div id="dDobDetails" class="dob-compat-grid"></div>
+    </div>
+
+    <!-- Combined: Categories + Full Breakdown -->
+    <div class="modal-section-label">Breakdown &amp; Categories</div>
     <div class="bk-list" id="dBreakdown"></div>
+
     <div style="display:flex;gap:10px;margin-top:20px;">
       <button class="btn btn-primary" id="modalSaveBtn" style="flex:1;" onclick="saveFromModal()">☆ Save Number</button>
       <button class="btn btn-secondary btn-sm" onclick="closeDetail()">Close</button>
@@ -598,7 +644,6 @@ function getReason(n){const s=pad(n),d=s.split('').map(Number),red=root(n),sum=d
 
 function getCardTags(n,compat){const t=getTags(n);const out=[];if(compat==='best')out.push({label:'Perfect Match',cls:'tag-match'});else if(compat==='good')out.push({label:'Compatible',cls:'tag-compat'});if(ANGELS.has(n))out.push({label:'Angel',cls:'tag-spirit'});if(t.includes('lucky'))out.push({label:'Lucky',cls:'tag-lucky'});if(t.includes('sequence'))out.push({label:'Growth',cls:'tag-compat'});if(t.includes('easy'))out.push({label:'Easy Memory',cls:'tag-compat'});if(POWERS.has(n))out.push({label:'Power',cls:'tag-power'});return out.slice(0,3);}
 
-function getBreakdown(n){const d=pad(n).split('').map(Number);return[['Number',pad(n)],['Digit Sum',dsum(n)],['Root Number',root(n)],['Unique Digits',new Set(d).size],['Starts With',d[0]],['Ends In',d[3]],['Is Prime',PRIMES.has(n)?'Yes':'No'],['Is Angel Number',ANGELS.has(n)?'Yes':'No'],['Is Power Number',POWERS.has(n)?'Yes':'No'],['Divisible by 7',n%7===0?'Yes':'No']];}
 
 // STATE
 let allData=[],dobData=null,curFilter='all',endsFilter=0,srchTerm='',specificTerm='',specificList=[],rStart=1,rEnd=9999,shortlist=[],showCount=6,tablePage=1,sortKey='score',sortDir=-1,activeTab='recommended',modalNum=null;
@@ -924,22 +969,147 @@ function clearShortlist(){
 
 // MODAL
 function openDetail(n){
-  const d=allData.find(x=>x.n===n)||{n,score:calcScore(n),totalScore:calcScore(n),compat:null,reason:getReason(n),ds:dsum(n)};
+  const d=allData.find(x=>x.n===n)||{n,score:calcScore(n),totalScore:calcScore(n),compat:null,reason:getReason(n),ds:dsum(n),tags:getTags(n)};
   modalNum=n;
+  const tags=d.tags||getTags(n);
+
+  // Header
   document.getElementById('dNum').textContent=pad(n);
-  const compatText=d.compat?{best:'Perfect DOB Match — same Life Path root',good:'Compatible with your Date of Birth',avoid:'May not suit your numerology profile',neutral:'Neutral compatibility'}[d.compat]:'Numerology score: '+d.totalScore;
+
+  // Compat badge
+  const compatBadgeEl=document.getElementById('dCompatBadge');
+  if(d.compat){
+    const badgeText={best:'✦ Perfect Match',good:'✓ Compatible',avoid:'✗ Avoid',neutral:'· Neutral'}[d.compat];
+    compatBadgeEl.innerHTML='<span class="compat-badge '+d.compat+'">'+badgeText+'</span>';
+  } else {
+    compatBadgeEl.innerHTML='';
+  }
+
+  // Sub text
+  const compatText=d.compat?{best:'Perfect DOB Match — shares your Life Path root',good:'Compatible with your Date of Birth',avoid:'May create friction with your numerology profile',neutral:'Neutral — no strong alignment or conflict'}[d.compat]:'Enter your DOB above for personalised compatibility.';
   document.getElementById('dSub').textContent=compatText;
-  document.getElementById('dStats').innerHTML=[{l:'Score',v:d.totalScore},{l:'Digit Sum',v:d.ds},{l:'Root No.',v:root(n)}].map(s=>'<div class="ms"><div class="ms-l">'+s.l+'</div><div class="ms-v">'+s.v+'</div></div>').join('');
+
+  // Stats row
+  document.getElementById('dStats').innerHTML=[
+    {l:'Score',v:d.totalScore},
+    {l:'Digit Sum',v:dsum(n)},
+    {l:'Root No.',v:root(n)},
+    {l:'Rank',v:d.rank?'#'+d.rank:'—'}
+  ].map(s=>'<div class="ms"><div class="ms-l">'+s.l+'</div><div class="ms-v">'+s.v+'</div></div>').join('');
+
+  // Tags (used in breakdown below)
+  const TAG_MAP={
+    angel:{label:'👼 Angel',cls:'tag-spirit'},
+    lucky:{label:'✨ Lucky',cls:'tag-lucky'},
+    numerology:{label:'🔢 Numerology',cls:'tag-compat'},
+    sequence:{label:'↗ Sequence',cls:'tag-compat'},
+    easy:{label:'💡 Easy Memory',cls:'tag-compat'},
+    prime:{label:'⭐ Prime',cls:'tag-lucky'},
+    fibonacci:{label:'🌀 Fibonacci',cls:'tag-lucky'},
+    palindrome:{label:'🔁 Palindrome',cls:'tag-spirit'},
+    mirror:{label:'🪞 Mirror',cls:'tag-spirit'},
+    powernum:{label:'⚡ Power No.',cls:'tag-power'},
+    repeating:{label:'🔄 Repeating',cls:'tag-power'},
+    pattern:{label:'🎯 Pattern',cls:'tag-compat'},
+  };
+
+  // Why
   document.getElementById('dWhy').textContent=d.reason;
-  document.getElementById('dBreakdown').innerHTML=getBreakdown(n).map(([k,v])=>'<div class="bk-row"><span class="bk-key">'+k+'</span><span class="bk-val">'+v+'</span></div>').join('');
+
+  // DOB section
+  const dobSec=document.getElementById('dDobSection');
+  if(dobData){
+    dobSec.style.display='block';
+    const lp=dobData.lp;const planet=dobData.planet;const zodiacIdx=dobData.zodiacIdx;
+    const lpS=lp>9?root(lp):lp;
+    const vRoot=root(n);
+    const lucky=PLANET_LUCKY[planet]||[];
+    const avoid=PLANET_AVOID[planet]||[];
+    const zodiacLucky=ZODIAC_LUCKY[zodiacIdx]||[];
+
+    const lifePathMatch=vRoot===lpS;
+    const planetMatch=lucky.includes(vRoot);
+    const planetAvoid=avoid.includes(vRoot);
+    const zodiacMatch=zodiacLucky.includes(vRoot);
+
+    const cards=[
+      {
+        label:'Life Path '+lp,
+        value: lifePathMatch?'✦ Direct Match':'Root '+vRoot+(lpS===vRoot?'':' vs LP '+lpS),
+        sub: LP_MEANING[lp]||'',
+        cls: lifePathMatch?'highlight':''
+      },
+      {
+        label:'Ruling Planet',
+        value: PLANET_EMO[planet]+' '+PLANET_NAMES[planet],
+        sub: planetMatch?'✓ Root '+vRoot+' is lucky for '+PLANET_NAMES[planet]:planetAvoid?'✗ Root '+vRoot+' conflicts with '+PLANET_NAMES[planet]:'Neutral for '+PLANET_NAMES[planet],
+        cls: planetMatch?'highlight':planetAvoid?'warn':''
+      },
+      {
+        label:'Zodiac — '+ZODIAC_NAMES[zodiacIdx],
+        value: ZODIAC_EMO[zodiacIdx]+' Lucky roots: '+(zodiacLucky.join(', ')||'—'),
+        sub: zodiacMatch?'✓ Root '+vRoot+' aligns with your zodiac':'Root '+vRoot+' is neutral for your sign',
+        cls: zodiacMatch?'highlight':''
+      },
+      {
+        label:'DOB Bonus Points',
+        value: (d.dobBonus>0?'+':'')+Math.round(d.dobBonus||0)+' pts',
+        sub: 'Added to base score of '+d.score,
+        cls: (d.dobBonus||0)>0?'highlight':(d.dobBonus||0)<0?'warn':''
+      },
+    ];
+    document.getElementById('dDobDetails').innerHTML=cards.map(c=>
+      '<div class="dob-compat-card '+c.cls+'">'+
+        '<div class="dcc-label">'+c.label+'</div>'+
+        '<div class="dcc-value">'+c.value+'</div>'+
+        '<div class="dcc-sub">'+c.sub+'</div>'+
+      '</div>'
+    ).join('');
+  } else {
+    dobSec.style.display='none';
+  }
+
+  // Combined breakdown + categories
+  const tagHtml=tags.filter(t=>TAG_MAP[t]).map(t=>'<span class="tag '+TAG_MAP[t].cls+'">'+TAG_MAP[t].label+'</span>').join('');
+  const categoriesRow='<div class="bk-row" style="align-items:flex-start;padding:10px 0;"><span class="bk-key">Categories</span><span class="bk-val" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;">'+(tagHtml||'<span style="color:var(--muted);font-size:.78rem;">None</span>')+'</span></div>';
+
+  const breakdownRows=[
+    ['Number',pad(n)],
+    ['Unique Digits',String(new Set(pad(n).split('')).size)],
+    ['Starts With',pad(n)[0]],
+    ['Ends In',pad(n)[3]],
+    ['Divisible by 7',n%7===0?'Yes':'No'],
+    ['Divisible by 3',n%3===0?'Yes':'No'],
+  ];
+  document.getElementById('dBreakdown').innerHTML=
+    categoriesRow+
+    breakdownRows.map(([k,v])=>'<div class="bk-row"><span class="bk-key">'+k+'</span><span class="bk-val">'+v+'</span></div>').join('');
+
+  // Nav arrows: operate over current filtered list
+  const filteredNums=getFiltered().map(x=>x.n);
+  const curIdx=filteredNums.indexOf(n);
+  const prevBtn=document.getElementById('modalPrev');
+  const nextBtn=document.getElementById('modalNext');
+  const counter=document.getElementById('modalNavCounter');
+  if(prevBtn)prevBtn.disabled=curIdx<=0;
+  if(nextBtn)nextBtn.disabled=curIdx<0||curIdx>=filteredNums.length-1;
+  if(counter)counter.textContent=curIdx>=0?(curIdx+1)+' / '+filteredNums.length:'';
+
   document.getElementById('detailOverlay').classList.add('open');
-  // Set save button state
+
+  // Save button state
   const saved=shortlist.includes(n);
   const mBtn=document.getElementById('modalSaveBtn');
   if(mBtn){mBtn.textContent=saved?'⭐ Saved':'☆ Save Number';mBtn.style.background=saved?'var(--gold)':'var(--accent)';}
 }
 function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');}
 function closeDetailBg(e){if(e.target===document.getElementById('detailOverlay'))closeDetail();}
+function navigateDetail(dir){
+  const filteredNums=getFiltered().map(x=>x.n);
+  const curIdx=filteredNums.indexOf(modalNum);
+  const newIdx=curIdx+dir;
+  if(newIdx>=0&&newIdx<filteredNums.length)openDetail(filteredNums[newIdx]);
+}
 function saveFromModal(){
   if(!modalNum)return;
   toggleSave(modalNum,null);
@@ -1014,6 +1184,15 @@ function renderCompare(){
 
   document.getElementById('compareGrid').innerHTML=html;
 }
+
+// Keyboard navigation for detail modal
+document.addEventListener('keydown',function(e){
+  const overlay=document.getElementById('detailOverlay');
+  if(!overlay.classList.contains('open'))return;
+  if(e.key==='ArrowLeft')navigateDetail(-1);
+  else if(e.key==='ArrowRight')navigateDetail(1);
+  else if(e.key==='Escape')closeDetail();
+});
 
 init();
 </script>
