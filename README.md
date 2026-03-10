@@ -158,3 +158,11 @@ Or run locally (see setup below).
 6. Save or export preferred selections  
 
 ---
+
+## 🌐 Online Demo
+
+No setup, view live on GitHub Pages:
+
+[https://vijopv83.github.io/VehicleNumberSelector/](https://vijopv83.github.io/VehicleNumberSelector/)
+
+---
